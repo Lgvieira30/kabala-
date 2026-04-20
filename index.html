@@ -2686,6 +2686,90 @@
   </div>
 </div>
 
+<!-- Página de Retribuição -->
+<div class="page" id="retribuicao">
+  <div class="page-inner">
+    <div class="corner-dot tl"></div>
+    <div class="corner-dot tr"></div>
+    <div class="corner-dot bl"></div>
+    <div class="corner-dot br"></div>
+
+    <h2 class="chapter-title" style="text-align:center;">Se o livro te serviu</h2>
+
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p style="text-align:center;font-style:italic;color:var(--text-light);margin-bottom:24px;">
+      Este guia foi entregue de coração aberto.<br>
+      Quem não puder retribuir, leva de axé — sem dívida, sem cobrança.
+    </p>
+
+    <p>
+      Se o conhecimento aqui te iluminou, se te ajudou a entender melhor o caminho,
+      se algo mudou na forma como você vê e vive a tradição — existe uma forma bonita
+      de fechar esse ciclo.
+    </p>
+
+    <p>
+      Na Kabala de Mussifin, axé não se vende. Mas se retribui — com gratidão, com
+      intenção, com o que vier do coração. Uma retribuição voluntária de <strong>R$&nbsp;20</strong>
+      ajuda a manter esse trabalho vivo e a levar o conhecimento adiante.
+    </p>
+
+    <div class="info-box" style="text-align:center;margin:28px 0;">
+      <p class="box-title">Chave Pix</p>
+      <p id="chave-pix-texto" style="font-family:'Cinzel',serif;font-size:1.05rem;letter-spacing:0.04em;margin:12px 0;">CHAVE_PIX_AQUI</p>
+      <button onclick="copiarPix()" style="
+        background:var(--gold);color:#fff;border:none;
+        padding:9px 24px;border-radius:4px;font-family:'Cinzel',serif;
+        font-size:0.85rem;cursor:pointer;letter-spacing:0.05em;margin-top:4px;
+      ">Copiar chave Pix</button>
+      <p id="pix-copiado" style="display:none;color:var(--gold);font-style:italic;margin-top:8px;font-size:0.85rem;">✓ Copiado!</p>
+
+      <div style="margin-top:24px;">
+        <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:10px;">ou escaneie o QR code</p>
+        <img src="qr-pix.png" alt="QR Code Pix" style="width:160px;height:160px;border:2px solid var(--gold);border-radius:4px;" onerror="this.style.display='none'">
+      </div>
+    </div>
+
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <h3 class="section-title" style="text-align:center;">Deixar um Axé</h3>
+    <p style="text-align:center;">
+      Se quiser compartilhar como o livro te tocou, manda uma mensagem.<br>
+      Depoimentos alimentam quem escreve e abrem caminho para quem ainda vai chegar.
+    </p>
+
+    <div style="text-align:center;margin-top:20px;">
+      <a href="https://wa.me/55SEUNUMEROAQUI?text=Quero+deixar+meu+ax%C3%A9+sobre+o+livro+da+Kabala+de+Mussifin"
+         target="_blank"
+         style="
+           display:inline-block;background:var(--red);color:#fff;
+           text-decoration:none;padding:11px 28px;border-radius:4px;
+           font-family:'Cinzel',serif;font-size:0.9rem;letter-spacing:0.05em;
+         ">
+        Deixar meu axé no WhatsApp
+      </a>
+    </div>
+
+    <div class="divider" style="margin-top:32px;"><div class="divider-diamond"></div></div>
+
+    <p style="text-align:center;font-family:'Cinzel',serif;font-weight:700;color:var(--red);margin-top:16px;">
+      Laroyê, Exu! Que o axé circule.
+    </p>
+  </div>
+</div>
+
+<script>
+  function copiarPix() {
+    var chave = document.getElementById('chave-pix-texto').textContent.trim();
+    navigator.clipboard.writeText(chave).then(function() {
+      var aviso = document.getElementById('pix-copiado');
+      aviso.style.display = 'block';
+      setTimeout(function() { aviso.style.display = 'none'; }, 2500);
+    });
+  }
+</script>
+
 <!-- Barra de progresso de leitura -->
 <script>
   (function() {
