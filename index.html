@@ -1,0 +1,2711 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kabala de Exu — Os Caminhos Sagrados de Mussifin</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    #gate {
+      position: fixed;
+      inset: 0;
+      background: #0d0a06;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    #gate-box {
+      text-align: center;
+      padding: 44px 44px 40px;
+      border: 1.5px solid #b8962e;
+      max-width: 440px;
+      width: 90%;
+      position: relative;
+      background: #100c05;
+    }
+    #gate-box::before {
+      content: '';
+      position: absolute;
+      inset: 7px;
+      border: 0.5px solid #6b4f1a;
+      pointer-events: none;
+    }
+    .gc {
+      position: absolute;
+      width: 8px; height: 8px;
+      background: #b8962e;
+      border-radius: 50%;
+    }
+    .gc.tl { top: -4px; left: -4px; }
+    .gc.tr { top: -4px; right: -4px; }
+    .gc.bl { bottom: -4px; left: -4px; }
+    .gc.br { bottom: -4px; right: -4px; }
+    #gate-line {
+      width: 70%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #b8962e, transparent);
+      margin: 16px auto;
+    }
+    #gate-title {
+      font-family: 'Cinzel', serif;
+      color: #f0e8d5;
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      margin: 0;
+    }
+    #gate-sub {
+      font-family: 'Cormorant Garamond', serif;
+      color: #b8962e;
+      font-size: 0.95rem;
+      letter-spacing: 0.1em;
+      font-style: italic;
+      margin: 0;
+    }
+    #gate-label {
+      font-family: 'Cinzel', serif;
+      color: #6b4f1a;
+      font-size: 0.72rem;
+      letter-spacing: 0.3em;
+      margin-bottom: 20px;
+    }
+    #gate-input {
+      width: 100%;
+      background: #0d0a06;
+      border: 1px solid #4a3a20;
+      border-bottom-color: #b8962e;
+      color: #f0e8d5;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem;
+      padding: 13px 18px;
+      text-align: center;
+      letter-spacing: 0.1em;
+      outline: none;
+      margin-bottom: 14px;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    #gate-input:focus { border-color: #b8962e; }
+    #gate-input::placeholder { color: #3a2e18; }
+    #gate-btn {
+      width: 100%;
+      background: #7a1515;
+      color: #f0e8d5;
+      border: none;
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #gate-btn:hover { background: #9e2222; }
+    #gate-error {
+      font-family: 'Cormorant Garamond', serif;
+      color: #9e2222;
+      font-style: italic;
+      font-size: 0.9rem;
+      margin-top: 12px;
+      letter-spacing: 0.05em;
+      min-height: 20px;
+    }
+  </style>
+  <script>
+    (function() {
+      // URL do Apps Script publicado — substituir após publicar no Google
+      var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx301nq2vdR5iVNLu5xsNqJ0WzKq9T4ElDJz0jxO298qo7SjguC2fed4VkaXPKPZ2yTyA/exec';
+
+      // Já validou antes → esconde gate e vai direto pro livro
+      if (localStorage.getItem('kabala_ok') === '1') {
+        document.addEventListener('DOMContentLoaded', function() {
+          var g = document.getElementById('gate');
+          if (g) g.style.display = 'none';
+        });
+        return;
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        // Sales page: visível só com ?vender=1 na URL
+        var params    = new URLSearchParams(window.location.search);
+        var salesPage = document.getElementById('sales-page');
+        if (salesPage) {
+          salesPage.style.display = params.get('vender') === '1' ? 'block' : 'none';
+        }
+
+        // Se é a página de vendas, esconde o gate
+        var gate = document.getElementById('gate');
+        if (params.get('vender') === '1') {
+          if (gate) gate.style.display = 'none';
+          return;
+        }
+
+        var input = document.getElementById('gate-input');
+        var btn   = document.getElementById('gate-btn');
+        var erro  = document.getElementById('gate-error');
+
+        input.focus();
+
+        function setLoading(sim) {
+          btn.disabled    = sim;
+          btn.textContent = sim ? 'Validando...' : 'Entrar';
+          input.disabled  = sim;
+        }
+
+        function liberar(chave) {
+          localStorage.setItem('kabala_ok', '1');
+          localStorage.setItem('kabala_chave', chave);
+          gate.style.transition = 'opacity 0.4s';
+          gate.style.opacity    = '0';
+          setTimeout(function() { gate.style.display = 'none'; }, 420);
+          // registra acesso sem bloquear a UI
+          fetch(APPS_SCRIPT_URL + '?acao=marcar_acesso&k=' + encodeURIComponent(chave))
+            .catch(function() {});
+        }
+
+        function tentar() {
+          var chave = input.value.trim();
+          if (!chave) return;
+
+          setLoading(true);
+          erro.textContent = '';
+
+          fetch(APPS_SCRIPT_URL + '?acao=validar&k=' + encodeURIComponent(chave))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              if (data.valida) {
+                liberar(chave);
+              } else {
+                erro.textContent = 'Código inválido ou expirado.';
+                input.value = '';
+                input.focus();
+                setLoading(false);
+              }
+            })
+            .catch(function() {
+              erro.textContent = 'Não conseguimos validar agora. Tente novamente.';
+              setLoading(false);
+            });
+        }
+
+        btn.addEventListener('click', tentar);
+        input.addEventListener('keydown', function(e) { if (e.key === 'Enter') tentar(); });
+      });
+    })();
+  </script>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div id="gate">
+  <div id="gate-box">
+    <span class="gc tl"></span><span class="gc tr"></span>
+    <span class="gc bl"></span><span class="gc br"></span>
+
+    <svg viewBox="0 0 220 170" xmlns="http://www.w3.org/2000/svg" style="width:160px;height:120px;margin:0 auto 24px;display:block;">
+      <defs>
+        <radialGradient id="gbg" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#6b0e0e"/>
+          <stop offset="100%" stop-color="#2a0505"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="110" cy="85" rx="100" ry="72" fill="url(#gbg)" opacity="0.95"/>
+      <ellipse cx="110" cy="85" rx="88" ry="62" fill="none" stroke="#b8962e" stroke-width="1"/>
+      <ellipse cx="110" cy="85" rx="70" ry="48" fill="none" stroke="#b8962e" stroke-width="0.7"/>
+      <line x1="110" y1="23" x2="22" y2="115"  stroke="#b8962e" stroke-width="1"/>
+      <line x1="110" y1="23" x2="198" y2="115" stroke="#b8962e" stroke-width="1"/>
+      <line x1="22"  y1="115" x2="185" y2="60" stroke="#b8962e" stroke-width="1"/>
+      <line x1="198" y1="115" x2="35"  y2="60" stroke="#b8962e" stroke-width="1"/>
+      <line x1="35"  y1="60"  x2="185" y2="60" stroke="#b8962e" stroke-width="1"/>
+      <line x1="110" y1="38" x2="110" y2="128" stroke="#8b1515" stroke-width="2.5"/>
+      <polygon points="110,140 103,118 117,118" fill="#8b1515"/>
+      <path d="M98,48 Q88,36 94,28" fill="none" stroke="#b8962e" stroke-width="1.5"/>
+      <path d="M122,48 Q132,36 126,28" fill="none" stroke="#b8962e" stroke-width="1.5"/>
+    </svg>
+
+    <div id="gate-line"></div>
+    <div id="gate-title">KABALA DE EXU</div>
+    <div id="gate-sub">Os Caminhos Sagrados de Mussifin</div>
+    <div id="gate-line"></div>
+
+    <div id="gate-label">✦ ÁREA EXCLUSIVA ✦</div>
+    <input id="gate-input" type="text" placeholder="Digite o código de acesso..." autocomplete="off" />
+    <button id="gate-btn">Entrar</button>
+    <div id="gate-error"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PÁGINA DE VENDAS (visível antes do acesso)                    -->
+<!-- ============================================================ -->
+<div id="sales-page" style="display:none">
+
+  <!-- HERO -->
+  <div id="sales-hero">
+    <div id="sales-hero-inner">
+      <svg viewBox="0 0 220 170" xmlns="http://www.w3.org/2000/svg" style="width:140px;height:105px;margin:0 auto 28px;display:block;">
+        <defs><radialGradient id="sbg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#6b0e0e"/><stop offset="100%" stop-color="#2a0505"/></radialGradient></defs>
+        <ellipse cx="110" cy="85" rx="100" ry="72" fill="url(#sbg)" opacity="0.95"/>
+        <ellipse cx="110" cy="85" rx="88" ry="62" fill="none" stroke="#b8962e" stroke-width="1"/>
+        <ellipse cx="110" cy="85" rx="70" ry="48" fill="none" stroke="#b8962e" stroke-width="0.7"/>
+        <line x1="110" y1="23" x2="22" y2="115" stroke="#b8962e" stroke-width="1"/>
+        <line x1="110" y1="23" x2="198" y2="115" stroke="#b8962e" stroke-width="1"/>
+        <line x1="22" y1="115" x2="185" y2="60" stroke="#b8962e" stroke-width="1"/>
+        <line x1="198" y1="115" x2="35" y2="60" stroke="#b8962e" stroke-width="1"/>
+        <line x1="35" y1="60" x2="185" y2="60" stroke="#b8962e" stroke-width="1"/>
+        <line x1="110" y1="38" x2="110" y2="128" stroke="#8b1515" stroke-width="2.5"/>
+        <polygon points="110,140 103,118 117,118" fill="#8b1515"/>
+        <path d="M98,48 Q88,36 94,28" fill="none" stroke="#b8962e" stroke-width="1.5"/>
+        <path d="M122,48 Q132,36 126,28" fill="none" stroke="#b8962e" stroke-width="1.5"/>
+      </svg>
+      <div class="s-label">✦ GUIA SAGRADO ✦</div>
+      <h1 class="s-title">KABALA DE EXU</h1>
+      <h2 class="s-subtitle">Os Caminhos Sagrados de Mussifin</h2>
+      <div class="s-line"></div>
+      <p class="s-desc">O único guia completo que revela os fundamentos secretos da Kabala — da feitura ao desligamento, dos axés às entidades, dos rituais de proteção aos trabalhos de abertura de caminhos.</p>
+      <div class="s-line"></div>
+      <div class="s-price">R$ 20,00</div>
+      <a class="s-btn s-btn-wa" href="https://wa.me/5554999208231?text=Olá!%20Quero%20adquirir%20a%20Kabala%20de%20Exu!" target="_blank">Quero Adquirir — WhatsApp</a>
+    </div>
+  </div>
+
+  <!-- RESUMO -->
+  <div class="s-section">
+    <div class="s-section-inner">
+      <div class="s-section-label">✦ O QUE VOCÊ VAI APRENDER ✦</div>
+      <h2 class="s-section-title">Um Sistema Completo e Poderoso</h2>
+      <div class="s-line" style="margin:16px auto 32px;"></div>
+      <div class="s-cards">
+        <div class="s-card">
+          <div class="s-card-icon">🔱</div>
+          <h3>Fundamentos Sagrados</h3>
+          <p>Origens da Kabala de Mussifin, as duas leis kármicas, o papel de Ogum Megê e como as entidades atuam nos quatro elementos.</p>
+        </div>
+        <div class="s-card">
+          <div class="s-card-icon">⚗️</div>
+          <h3>Montagem e Consagração</h3>
+          <p>Passo a passo completo para montar a Kabala de Exu e Pomba Gira, com materiais, sequências rituais e fundamentos técnicos.</p>
+        </div>
+        <div class="s-card">
+          <div class="s-card-icon">🩸</div>
+          <h3>A Matança Sagrada</h3>
+          <p>O ritual de consagração através do sangue — como fazer corretamente, os animais adequados e os fundamentos espirituais por trás do ato.</p>
+        </div>
+        <div class="s-card">
+          <div class="s-card-icon">🕯️</div>
+          <h3>Axés e Rituais</h3>
+          <p>Mais de 20 axés completos: proteção, cura, abertura de caminhos, demandas, trabalhos de amor, financeiros e espirituais.</p>
+        </div>
+        <div class="s-card">
+          <div class="s-card-icon">👑</div>
+          <h3>Reinos e Entidades</h3>
+          <p>Os 7 reinos, suas cores, pontos e entidades. Conheça cada Exu e Pomba Gira, seus domínios e como trabalhar com cada um.</p>
+        </div>
+        <div class="s-card">
+          <div class="s-card-icon">💀</div>
+          <h3>O Desligamento</h3>
+          <p>O rito sagrado realizado após a morte do médium — como garantir que sua Kabala seja corretamente desligada e os espíritos liberados.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMÁRIO -->
+  <div class="s-section s-section-dark">
+    <div class="s-section-inner">
+      <div class="s-section-label">✦ CONTEÚDO COMPLETO ✦</div>
+      <h2 class="s-section-title">O Que Está Dentro do Guia</h2>
+      <div class="s-line" style="margin:16px auto 32px;"></div>
+      <div class="s-toc">
+        <div class="s-toc-item"><span class="s-toc-num">I</span><span>A Kabala de Mussifin — Origens e Fundamentos</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">II</span><span>A Ligação entre Kabala e Umbanda</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">III</span><span>Montagem da Kabala de Exu e Pomba Gira</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">IV</span><span>A Matança e Consagração da Kabala</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">V</span><span>Rituais: Corte, Limpeza e Levantação</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">VI</span><span>O Dia do Elebó — A Festa dos Exus</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">VII</span><span>O Movimento de Exu — Despachar a Rua</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">VIII</span><span>O Desligamento — Rito do Falecimento</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">IX</span><span>Guias, Ferramentas e Símbolos</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">X</span><span>Reinos, Cores e Entidades</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">XI</span><span>Axés — Rituais de Proteção, Cura e Aberturas</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">XII</span><span>Axés de Demanda e Trabalhos Especiais</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">XIII</span><span>Nomes Kabalisticos Sagrados</span></div>
+        <div class="s-toc-item"><span class="s-toc-num">+</span><span>Glossário Completo de Termos da Kabala</span></div>
+        <div class="s-toc-item s-toc-bonus"><span class="s-toc-num">✦</span><span>BÔNUS — Guia Educativo Completo (Caps. XIV ao XXI)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA FINAL -->
+  <div class="s-section s-cta-final">
+    <div class="s-section-inner" style="text-align:center;">
+      <div class="s-section-label">✦ ACESSO IMEDIATO ✦</div>
+      <h2 class="s-section-title">Abra Seus Caminhos Agora</h2>
+      <div class="s-line" style="margin:16px auto 24px;"></div>
+      <p style="font-size:1.1rem;color:#b8a890;max-width:440px;margin:0 auto 24px;">Tudo que você precisa saber sobre a Kabala de Exu — fundamentos, rituais, axés e entidades — em um único guia completo.</p>
+      <div class="s-price" style="font-size:2.8rem;">R$ 20,00</div>
+      <p style="color:#8a7060;font-size:0.9rem;margin:8px 0 28px;">Pagamento via Pix — acesso liberado na hora</p>
+      <a class="s-btn s-btn-wa" href="https://wa.me/5554999208231?text=Olá!%20Quero%20adquirir%20a%20Kabala%20de%20Exu!" target="_blank">Quero Adquirir — WhatsApp</a>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  #sales-page { background: #0d0a06; }
+  #sales-hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    background: radial-gradient(ellipse at center, #1a0a04 0%, #0d0a06 70%);
+    border-bottom: 1px solid #2a1a08;
+  }
+  #sales-hero-inner { text-align: center; max-width: 560px; }
+  .s-label { font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.35em; color: #6b4f1a; margin-bottom: 16px; }
+  .s-title { font-family: 'Cinzel', serif; font-size: clamp(2.2rem, 8vw, 3.8rem); font-weight: 900; color: #9e2222; letter-spacing: 0.12em; line-height: 1; margin-bottom: 8px; }
+  .s-subtitle { font-family: 'Cormorant Garamond', serif; font-size: clamp(1rem, 3vw, 1.3rem); color: #c9a84c; font-style: italic; letter-spacing: 0.1em; margin-bottom: 0; }
+  .s-line { width: 60%; max-width: 300px; height: 1px; background: linear-gradient(to right, transparent, #b8962e, transparent); margin: 20px auto; }
+  .s-desc { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: #b8a890; line-height: 1.8; margin-bottom: 0; }
+  .s-price { font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: 900; color: #c9a84c; margin: 16px 0 8px; }
+  .s-btn {
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin: 10px auto 0;
+    background: #7a1515;
+    color: #f0e8d5;
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .s-btn:hover { background: #9e2222; }
+  .s-btn-wa { background: #1a5c2a; margin-top: 10px; }
+  .s-btn-wa:hover { background: #226b33; }
+  .s-section { padding: 80px 20px; }
+  .s-section-dark { background: #100c05; }
+  .s-cta-final { background: radial-gradient(ellipse at center, #1a0a04 0%, #0d0a06 70%); border-top: 1px solid #2a1a08; }
+  .s-section-inner { max-width: 900px; margin: 0 auto; }
+  .s-section-label { font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.35em; color: #6b4f1a; text-align: center; margin-bottom: 12px; }
+  .s-section-title { font-family: 'Cinzel', serif; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 900; color: #f0e8d5; text-align: center; letter-spacing: 0.06em; }
+  .s-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+  .s-card { background: #100c05; border: 1px solid #2a1a08; border-left: 3px solid #7a1515; padding: 24px 20px; }
+  .s-card-icon { font-size: 1.8rem; margin-bottom: 12px; }
+  .s-card h3 { font-family: 'Cinzel', serif; font-size: 0.95rem; font-weight: 700; color: #c9a84c; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .s-card p { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: #8a7a68; line-height: 1.7; margin: 0; }
+  .s-toc { display: flex; flex-direction: column; gap: 4px; }
+  .s-toc-item { display: flex; align-items: baseline; gap: 14px; padding: 12px 16px; border-bottom: 1px solid #1a1208; }
+  .s-toc-item:hover { background: #1a1208; }
+  .s-toc-num { font-family: 'Cinzel', serif; font-size: 0.8rem; font-weight: 700; color: #7a1515; min-width: 28px; text-align: center; }
+  .s-toc-item span:last-child { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: #b8a890; }
+  .s-toc-bonus { background: #1a0f05; }
+  .s-toc-bonus span:last-child { color: #c9a84c; font-weight: 600; }
+</style>
+
+<!-- ============================================================ -->
+<!-- CAPA                                                          -->
+<!-- ============================================================ -->
+<div class="page cover">
+  <div class="page-inner">
+    <span class="corner tl"></span>
+    <span class="corner tr"></span>
+    <span class="corner bl"></span>
+    <span class="corner br"></span>
+
+    <div class="cover-line"></div>
+
+    <h1>KABALA</h1>
+    <h2>DE EXU</h2>
+
+    <div class="cover-bar">OS CAMINHOS SAGRADOS DE MUSSIFIN</div>
+
+    <!-- Símbolo SVG -->
+    <div class="cover-symbol">
+      <svg viewBox="0 0 220 170" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#6b0e0e"/>
+            <stop offset="100%" stop-color="#2a0505"/>
+          </radialGradient>
+        </defs>
+        <!-- Fundo elíptico -->
+        <ellipse cx="110" cy="85" rx="100" ry="72" fill="url(#bg)" opacity="0.95"/>
+        <!-- Círculos -->
+        <ellipse cx="110" cy="85" rx="88" ry="62" fill="none" stroke="#b8962e" stroke-width="1"/>
+        <ellipse cx="110" cy="85" rx="70" ry="48" fill="none" stroke="#b8962e" stroke-width="0.7"/>
+        <!-- Linhas do pentagrama -->
+        <line x1="110" y1="23" x2="22" y2="115"  stroke="#b8962e" stroke-width="1"/>
+        <line x1="110" y1="23" x2="198" y2="115" stroke="#b8962e" stroke-width="1"/>
+        <line x1="22"  y1="115" x2="185" y2="60" stroke="#b8962e" stroke-width="1"/>
+        <line x1="198" y1="115" x2="35"  y2="60" stroke="#b8962e" stroke-width="1"/>
+        <line x1="35"  y1="60"  x2="185" y2="60" stroke="#b8962e" stroke-width="1"/>
+        <!-- Seta central -->
+        <line x1="110" y1="38" x2="110" y2="128" stroke="#8b1515" stroke-width="2.5"/>
+        <polygon points="110,140 103,118 117,118" fill="#8b1515"/>
+        <!-- Chifres -->
+        <path d="M98,48 Q88,36 94,28" fill="none" stroke="#b8962e" stroke-width="1.5"/>
+        <path d="M122,48 Q132,36 126,28" fill="none" stroke="#b8962e" stroke-width="1.5"/>
+        <!-- Linhas verticais externas -->
+        <line x1="22"  y1="23"  x2="22"  y2="147" stroke="#b8962e" stroke-width="0.5" opacity="0.4"/>
+        <line x1="198" y1="23"  x2="198" y2="147" stroke="#b8962e" stroke-width="0.5" opacity="0.4"/>
+      </svg>
+    </div>
+
+    <div class="cover-line"></div>
+    <p class="cover-subtitle">Guia Completo de Feituras, Fundamentos, Axés e Rituais</p>
+    <div class="cover-line"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SUMÁRIO                                                        -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner" style="display:flex;flex-direction:column;">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <div class="divider"><div class="divider-diamond"></div></div>
+    <h1 class="chapter-title" style="margin-bottom:20px;">Sumário</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <table class="toc">
+      <tr><td>Apresentação</td><td>Para Quem É Este Livro</td><td>3</td></tr>
+      <tr><td>Capítulo I</td><td>A Kabala de Mussifin — Origens e Fundamentos</td><td>4</td></tr>
+      <tr><td>Capítulo II</td><td>A Ligação entre Kabala e Umbanda</td><td>5</td></tr>
+      <tr><td>Capítulo III</td><td>Montagem da Kabala de Exu e Pomba Gira</td><td>6</td></tr>
+      <tr><td>Capítulo IV</td><td>A Matança e Consagração da Kabala</td><td>7</td></tr>
+      <tr><td>Capítulo V</td><td>Rituais: Corte, Limpeza e Levantação</td><td>8</td></tr>
+      <tr><td>Capítulo VI</td><td>O Dia do Elebó — A Festa dos Exus</td><td>9</td></tr>
+      <tr><td>Capítulo VII</td><td>O Movimento de Exu — Despachar a Rua</td><td>10</td></tr>
+      <tr><td>Capítulo VIII</td><td>O Desligamento — Rito do Falecimento</td><td>11</td></tr>
+      <tr><td>Capítulo IX</td><td>Guias, Ferramentas e Símbolos</td><td>12</td></tr>
+      <tr><td>Capítulo X</td><td>Reinos, Cores e Entidades</td><td>13</td></tr>
+      <tr><td>Capítulo XI</td><td>Axés — Rituais de Proteção, Cura e Aberturas</td><td>15</td></tr>
+      <tr><td>Capítulo XII</td><td>Axés de Demanda e Trabalhos Especiais</td><td>18</td></tr>
+      <tr><td>Capítulo XIII</td><td>Nomes Kabalisticos Sagrados</td><td>22</td></tr>
+      <tr><td>Glossário</td><td>Termos Essenciais da Kabala</td><td>23</td></tr>
+      <tr style="background:var(--red);"><td colspan="3" style="color:#fff;font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:0.15em;padding:8px 6px;text-align:center;">✦ PARTE II — GUIA EDUCATIVO ✦</td></tr>
+      <tr><td>Introdução</td><td>Para Quem É Este Guia</td><td>25</td></tr>
+      <tr><td>Capítulo XIV</td><td>O Que É a Kabala de Mussifin?</td><td>26</td></tr>
+      <tr><td>Capítulo XV</td><td>O Papel do Pai ou Mãe de Santo</td><td>27</td></tr>
+      <tr><td>Capítulo XVI</td><td>Entendendo os Rituais Principais</td><td>28</td></tr>
+      <tr><td>Capítulo XVII</td><td>O Movimento de Exu e os Cuidados Contínuos</td><td>29</td></tr>
+      <tr><td>Capítulo XVIII</td><td>Os Reinos e as Entidades</td><td>30</td></tr>
+      <tr><td>Capítulo XIX</td><td>Axés e Trabalhos Espirituais</td><td>31</td></tr>
+      <tr><td>Capítulo XX</td><td>Ética e Responsabilidade Espiritual</td><td>32</td></tr>
+      <tr><td>Capítulo XXI</td><td>Como Ser um Bom Filho/Filha de Santo</td><td>33</td></tr>
+      <tr><td>Conclusão</td><td>O Caminho Continua</td><td>34</td></tr>
+    </table>
+
+    <div class="page-number" style="margin-top:auto;">— 3 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- APRESENTAÇÃO                                                   -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Apresentação <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Para Quem É Este Livro</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p class="lead">
+      Este livro nasceu de uma necessidade real dentro dos terreiros: a de que os filhos de religião
+      possam compreender com profundidade o que o pai ou mãe de santo realiza em cada ritual,
+      cada assentamento, cada axé.
+    </p>
+
+    <p>
+      Muitos chegam à religião cheios de fé, mas sem entender o porquê dos gestos, das oferendas,
+      dos materiais e das sequências rituais. Este guia foi elaborado para preencher esse espaço —
+      não para substituir o ensinamento oral do mestre, mas para complementá-lo.
+    </p>
+
+    <p>
+      A <strong>Kabala de Mussifin</strong> é um sistema completo que vai da preparação dos
+      assentamentos até o desligamento do médium após a morte. Aqui você encontrará explicações
+      sobre cada etapa, o significado espiritual de cada elemento e as instruções dos principais
+      axés e frentes.
+    </p>
+
+    <p class="quote">"Que Exu abra seus caminhos e ilumine sua compreensão."</p>
+
+    <h3 class="section-title">Como Usar Este Guia</h3>
+    <p>
+      Este livro está dividido em duas partes. A <strong>Parte I</strong> traz o guia prático
+      completo: montagem, matança, levantação, axés e fundamentos técnicos. A
+      <strong>Parte II</strong> é o guia educativo, voltado para quem deseja compreender o
+      significado espiritual por trás de cada rito.
+    </p>
+    <p>
+      Recomenda-se a leitura integral antes de aplicar qualquer fundamento. O conhecimento
+      fora de contexto pode levar a erros que, no campo espiritual, têm consequências reais.
+      Leia com calma, anote suas dúvidas e, sempre que possível, dialogue com seu pai ou
+      mãe de santo sobre o que aprendeu.
+    </p>
+
+    <div class="info-box">
+      <p class="box-title">Orientação de Uso</p>
+      <p><strong>Iniciantes:</strong> Comece pela Parte II. Ela explica o "porquê" de cada
+      coisa de forma acessível, preparando o terreno para os fundamentos técnicos da Parte I.</p>
+      <p style="margin-top:8px;"><strong>Filhos com feitura:</strong> Use a Parte I como
+      referência para os rituais e a Parte II como aprofundamento do significado espiritual.</p>
+      <p style="margin-top:8px;"><strong>Pais e mães de santo:</strong> O guia pode ser
+      indicado aos filhos como complemento ao ensinamento oral da casa.</p>
+    </div>
+
+    <div class="page-number">— 4 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO I                                                     -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo I <span class="stars">✦</span></p>
+    <h1 class="chapter-title">A Kabala de Mussifin</h1>
+    <h2 class="chapter-subtitle">Origens e Fundamentos</h2>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      A Kabala de Mussifin tem sua raiz na longínqua África, especialmente nos rituais dedicados
+      aos <strong>Eguns</strong> — os ancestrais mortos. Ao chegar ao Brasil, esse culto foi
+      enriquecido com elementos de magia francesa, chinesa, hindu, maia e de outros povos,
+      tornando-se um sistema ritualístico único, completo e poderoso.
+    </p>
+
+    <p>
+      O que torna a Kabala especial é a sua <strong>completude</strong>: os rituais abrangem desde
+      a feitura (criação e consagração dos assentamentos) até o desligamento do médium no momento
+      de sua morte. Entre esses extremos, há todo um conjunto de trabalhos, magias e fundamentos
+      para questões de saúde, financeiras, sentimentais, espirituais e proteção.
+    </p>
+
+    <h3 class="section-title">O Mediador: Ogum Megê / Ogum da Rua</h3>
+
+    <p>
+      Em toda organização existe uma autoridade. Na Kabala de Mussifin, esse papel é exercido por
+      <strong>Ogum Megê</strong>, também chamado de <strong>Ogum da Rua</strong>. Ele rege e
+      mantém a ordem do culto, sendo o guardião que garante que os trabalhos sigam seus devidos
+      fundamentos.
+    </p>
+
+    <h3 class="section-title">Bem, Mal e as Duas Leis Kármicas</h3>
+
+    <p>
+      Um aspecto fundamental que todo filho de santo precisa compreender: dentro da Kabala de
+      Mussifin <strong>não existe o conceito dual de bem e mal</strong> como nas religiões
+      tradicionais. As entidades trabalham para quem as procura, sem julgamento prévio.
+    </p>
+
+    <div class="info-box">
+      <p class="box-title">As Duas Leis que Regem a Kabala</p>
+      <p><strong>1. A Lei do Retorno</strong> — Tudo que você pede e recebe volta para você em
+      algum momento, seja para o bem ou para o mal. Aquilo que você lança ao mundo retorna
+      multiplicado.</p>
+      <p><strong>2. A Lei do Livre Arbítrio</strong> — Cada ser humano tem o direito de escolher
+      seu caminho. As entidades respeitam essa escolha. Por isso, é o consulente quem deve
+      ponderar com consciência o que está pedindo.</p>
+    </div>
+
+    <p>
+      Portanto, quando você se aproxima de um axé ou de uma entidade, lembre-se:
+      <strong>a responsabilidade pelo pedido é sempre sua</strong>. A entidade executa; você
+      responde pelo karma.
+    </p>
+
+    <h3 class="section-title">Onde as Entidades Atuam</h3>
+
+    <p>
+      As entidades da Kabala de Mussifin são capazes de atuar em todos os elementos da natureza:
+      <strong>terra, água, ar e fogo</strong>. Essa abrangência é o que torna este culto tão
+      completo — há um fundamento adequado para cada tipo de problema ou necessidade.
+    </p>
+
+    <div class="page-number">— 5 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO II                                                    -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo II <span class="stars">✦</span></p>
+    <h1 class="chapter-title">A Ligação entre Kabala e Umbanda</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      Em muitos terreiros, como no da casa que originou este livro, a Kabala de Mussifin e a
+      Umbanda caminham juntas, formando os dois lados de uma mesma corrente energética:
+    </p>
+
+    <div class="info-box">
+      <p><strong>■ Kabala de Mussifin</strong> → Energia Negativa (força, ação, materialização)</p>
+      <p><strong>✦ Umbanda</strong> → Energia Positiva (luz, cura, elevação espiritual)</p>
+    </div>
+
+    <p>
+      Dentro dessa estrutura, os Exus ficam subordinados aos Caboclos e seguem a mesma vibração e
+      campo de ação de seus guias superiores. Isso significa que o Exu de um médium sempre carrega
+      a energia do caboclo que rege aquele médium.
+    </p>
+
+    <h3 class="section-title">Exemplos de Correspondências</h3>
+
+    <ul class="corr-list">
+      <li><strong>Cabocla Jurema</strong> → Exu Marabô</li>
+      <li><strong>Vô Joaquim</strong> → Exu Caveira</li>
+      <li><strong>Ogum Beira Mar</strong> → Exu Maré</li>
+      <li><strong>Caboclo da Mata</strong> → Exu do Mato</li>
+      <li><strong>Ogum Guerreiro</strong> → Exu 7 Encruzilhadas</li>
+      <li><strong>Iemanjá</strong> → Exu dos Mares</li>
+    </ul>
+
+    <h3 class="section-title">Os Pares de Exu e Pomba Gira</h3>
+
+    <p>
+      Durante as feituras e assentamentos, os Exus e Pomba Giras são preparados em
+      <strong>pares ou casais</strong>, quase sempre da mesma vibração e reino:
+    </p>
+
+    <ul class="corr-list">
+      <li><strong>Exu Rei</strong> → Pomba Gira Rainha</li>
+      <li><strong>Exu Caveira</strong> → Maria Padilha</li>
+      <li><strong>Exu 7 Encruzilhadas</strong> → Dama da Noite</li>
+      <li><strong>Exu Omulu</strong> → Maria Mulambo</li>
+      <li><strong>Exu Maré</strong> → Pomba Gira da Praia</li>
+      <li><strong>Exu Marabô</strong> → Gira do Mato</li>
+    </ul>
+
+    <h3 class="section-title">Por Que Trabalhar com as Duas Correntes?</h3>
+    <p>
+      A tradição afro-brasileira entende que toda a energia do universo possui dois polos —
+      como a própria natureza, que tem luz e sombra, dia e noite. Trabalhar apenas com uma
+      corrente seria ignorar metade das forças disponíveis. A junção da Umbanda com a Kabala
+      de Mussifin permite ao terreiro atuar com completude: curando com a luz dos caboclos
+      e movimentando caminhos com a força dos Exus.
+    </p>
+
+    <div class="info-box">
+      <p class="box-title">Equilíbrio das Forças</p>
+      <p>
+        Não existe hierarquia entre as correntes — apenas funções diferentes. O Caboclo
+        orienta e eleva; o Exu executa e protege. Um não substitui o outro; ambos se
+        completam. Por isso, em muitas giras, o trabalho começa com a Umbanda (abertura
+        e orientação) e termina com a Kabala (execução e proteção dos caminhos).
+      </p>
+    </div>
+
+    <h3 class="section-title">Quando o Exu Incorpora</h3>
+    <p>
+      O médium que tem feito sua Kabala recebe seu Exu (ou Pomba Gira) em giras específicas.
+      Nesse momento, a entidade se apresenta com suas características, aceita suas oferendas
+      e realiza consultas e trabalhos. É fundamental que o médium esteja limpo, preparado e
+      em dia com suas obrigações para que a incorporação aconteça de forma segura e eficaz.
+    </p>
+
+    <div class="page-number">— 6 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO III                                                   -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo III <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Montagem da Kabala</h1>
+    <h2 class="chapter-subtitle">De Exu e Pomba Gira</h2>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      A montagem da Kabala é o processo de construção física do assentamento — o objeto sagrado
+      onde a energia da entidade vai residir e trabalhar. Cada passo tem um significado espiritual
+      preciso e não deve ser alterado sem orientação do mestre da casa.
+    </p>
+
+    <h3 class="section-title">Passo a Passo da Montagem</h3>
+
+    <div class="step-box no-break">
+      <div class="step-number">Passo 1 — Coleta das Terras</div>
+      <p>Colher terra de cada reino de Exu, levando um axé para cada local visitado. Essa terra
+      carrega a energia específica de cada espaço onde o Exu irá atuar.</p>
+    </div>
+
+    <div class="step-box no-break">
+      <div class="step-number">Passo 2 — Preparo do Macerado</div>
+      <p>Fazer um macerado com ervas e 7 bebidas diferentes. O número 7 representa os sete
+      reinos e a totalidade dos caminhos.</p>
+    </div>
+
+    <div class="step-box no-break">
+      <div class="step-number">Passo 3 — Banho dos Materiais</div>
+      <p>Colocar vasilhas, pedras, guias e ferramentas de molho no macerado por no mínimo
+      24 horas antes da montagem. Assim os materiais absorvem as energias das ervas e bebidas.</p>
+    </div>
+
+    <div class="step-box no-break">
+      <div class="step-number">Passo 4 — Preparo da Tabatinga</div>
+      <p>Misturar todas as terras, o macerado, os metais e cimento branco (ou argila) até obter
+      a consistência ideal. Essa mistura chama-se <strong>Tabatinga</strong> e é o coração da
+      Kabala.</p>
+    </div>
+
+    <div class="step-box no-break">
+      <div class="step-number">Passo 5 — Unção das Ferramentas</div>
+      <p>Ungir cada ponto de ferro, ferramenta e guia com bebida e dendê antes de fixar na
+      vasilha.</p>
+    </div>
+
+    <div class="step-box no-break">
+      <div class="step-number">Passo 6 — Montagem Final</div>
+      <p>1º — Colocar o ponto em ferro no fundo da vasilha. 2º — Encher com a Tabatinga.
+      3º — Fixar as ferramentas em volta, cravando na Tabatinga. 4º — Colocar a
+      <strong>Otá</strong> (pedra sagrada) bem no centro.</p>
+    </div>
+
+    <div class="step-box no-break">
+      <div class="step-number">Passo 7 — Secagem</div>
+      <p>Deixar a Kabala secar por dois a três dias antes de qualquer ritual de consagração.</p>
+    </div>
+
+    <div class="page-number">— 7 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO IV                                                    -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo IV <span class="stars">✦</span></p>
+    <h1 class="chapter-title">A Matança e Consagração da Kabala</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      O dia da matança é um dos momentos mais sagrados dentro da Kabala. Todo o terreiro e todos
+      os participantes precisam estar ritualmente preparados para receber a força das entidades.
+    </p>
+
+    <h3 class="section-title">Preparação do Ilê (Terreiro)</h3>
+    <ul class="bullet-list single">
+      <li>Proteger o ilê com ecos de calçamento e optes de proteção</li>
+      <li>Fazer limpeza geral no terreiro, pátio e em todos os filhos da casa</li>
+      <li>Todos devem tomar banho de ervas antes do ritual</li>
+      <li>Realizar defumação no terreiro, pátio, filhos e participantes</li>
+    </ul>
+
+    <h3 class="section-title">Sequência de Abertura dos Trabalhos</h3>
+    <ol class="steps-list">
+      <li>Cantar para Ogum Megê / Ogum da Rua</li>
+      <li>Cantar para o Exu Mestre da Kabala da casa</li>
+      <li>Cantar para Exu Tranca Ruas e Exu Destranca Ruas</li>
+      <li>O chefe da casa leva bebidas até a rua: cerveja (lado esquerdo), cachaça (lado direito) e champanhe (no meio)</li>
+      <li>Fazer chuveiro de pipoca com açúcar cristal, da rua para dentro</li>
+      <li>Chamar todos os Exus que receberão suas Kabalas</li>
+      <li>Posicionar as Kabalas: Exus à esquerda, Pomba Giras à direita</li>
+    </ol>
+
+    <h3 class="section-title">O Ritual do Fogo</h3>
+    <p>Antes do corte, as Kabalas passam pelo purificador Ritual do Fogo:</p>
+    <ul class="bullet-list single">
+      <li>Derramar dendê sobre todas as Kabalas</li>
+      <li>Derramar álcool sobre todas as Kabalas e atear fogo</li>
+      <li>Aguardar o fogo se apagar naturalmente antes de iniciar o corte</li>
+    </ul>
+
+    <h4 class="sub-title">O que deve estar arriado no Ilê de Exu:</h4>
+    <ul class="bullet-list">
+      <li>1 padê para Exu + 1 cachaça</li>
+      <li>1 padê para Pomba Gira + 1 champanhe</li>
+      <li>1 ecó de Exu</li>
+      <li>1 ecó de Pomba Gira</li>
+      <li>1 cerveja para Ogum Megê / Ogum da Rua</li>
+    </ul>
+
+    <div class="page-number">— 8 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO V                                                     -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo V <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Rituais: Corte, Limpeza e Levantação</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <h3 class="section-title">O Ritual do Corte — A Menga</h3>
+    <p>
+      O Ritual do Corte é o momento em que as Kabalas já prontas recebem a <strong>menga</strong>
+      — o sangue do animal sacrificado. A menga representa a essência da vida e da natureza
+      vibratória. É nesse instante que a energia do Exu começa a habitar definitivamente a feitura.
+    </p>
+
+    <h4 class="sub-title">Sequência do Corte:</h4>
+    <ol class="steps-list">
+      <li>Animais de 4 pés (bois, cabritos, javalis, porcos, coelhos)</li>
+      <li>Aves (galos, galinhas, angolistas, patos, faisões, perus)</li>
+    </ol>
+
+    <table class="data-table" style="margin-top:14px;">
+      <thead>
+        <tr>
+          <th>Animais de 4 pés (o que fica na vasilha)</th>
+          <th>Aves (o que fica na vasilha)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>◆ Cabeça &nbsp; ◆ Patas &nbsp; ◆ Rabos<br>(testículos e úberes)</td>
+          <td>◆ Cabeça &nbsp; ◆ Asas &nbsp; ◆ Patas &nbsp; ◆ Rabos</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="section-title">O Ritual de Limpeza das Inhelas</h3>
+    <p>Após o corte, os animais são limpos e as vísceras (inhelas) são retiradas e processadas:</p>
+    <ul class="bullet-list single">
+      <li><strong>Coração, Fígado e Rins</strong> dos quadrúpedes → cozidos, temperados, transformados em farofa para o Elebó</li>
+      <li><strong>Coração, Fígado e Moela</strong> das aves → lavados, passados no dendê, colocados num alguidar na casinha dos Exus</li>
+      <li>As carnes são cortadas, lavadas e guardadas para serem servidas ao povo no dia da festa</li>
+    </ul>
+
+    <h3 class="section-title">O Ritual de Levantação</h3>
+    <p>
+      Após 3 ou 7 dias, as obrigações são levantadas. Este é o momento das
+      <strong>confirmações</strong> — testes e provações que os mestres fazem com as entidades
+      para garantir a autenticidade e seriedade das feituras.
+    </p>
+    <ol class="steps-list">
+      <li>Abrir os trabalhos da mesma forma que no dia do corte</li>
+      <li>Quando os Exus estiverem no mundo, iniciar a levantação</li>
+      <li>Forrar uma bacia com folhas de mamoeiro</li>
+      <li>Retirar tudo que ficou na Kabala (cabeças, patas, asas, penas, sangue)</li>
+      <li>Limpar as Kabalas com água e bebidas</li>
+      <li>Depois de limpas, ungir com dendê</li>
+      <li>Despachar a levantação num mato, coberta de pipoca e sete velas brancas acesas em volta</li>
+    </ol>
+
+    <div class="page-number">— 9 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO VI                                                    -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo VI <span class="stars">✦</span></p>
+    <h1 class="chapter-title">O Dia do Elebó</h1>
+    <h2 class="chapter-subtitle">A Festa dos Exus</h2>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      O Elebó é o ápice da feitura da Kabala: a apresentação pública dos novos feitos, a entrega
+      dos axés e a grande confraternização entre as entidades, os filhos da casa e o povo
+      visitante. É um dia de alegria, força e renovação.
+    </p>
+
+    <h3 class="section-title">Comidas Rituais por Reino</h3>
+
+    <table class="entity-table">
+      <tr>
+        <td>Povo de Cruzeiro</td>
+        <td>◆ Um prato de guisado temperado cru &nbsp; ◆ Um prato de guisado temperado frito</td>
+      </tr>
+      <tr>
+        <td>Povo de Almas</td>
+        <td>◆ Tiras de fígado cru &nbsp; ◆ Tiras de fígado frito &nbsp; ◆ Mondongo cozido temperado &nbsp; ◆ Farofa com linguiça</td>
+      </tr>
+      <tr>
+        <td>Povo da Praia</td>
+        <td>◆ Um peixe assado &nbsp; ◆ Iscas de peixe ou frutos do mar</td>
+      </tr>
+      <tr>
+        <td>Povo do Mato</td>
+        <td>◆ Algum tipo de salada verde</td>
+      </tr>
+      <tr>
+        <td>Povo do Oriente</td>
+        <td>◆ Uma cesta de frutas &nbsp; ◆ Flores e perfumes</td>
+      </tr>
+    </table>
+
+    <h3 class="section-title">Axés Entregues no Elebó</h3>
+    <ul class="bullet-list">
+      <li>Facas</li>
+      <li>Guias</li>
+      <li>Chapéus</li>
+      <li>Bengalas</li>
+      <li>Outros axés definidos pelo mestre da Kabala</li>
+    </ul>
+
+    <h3 class="section-title">A Sequência da Festa</h3>
+    <p>
+      O Elebó segue uma ordem sagrada que começa com a abertura dos trabalhos, a chamada de
+      todos os Exus e Pomba Giras feitos e a entrega dos axés. Em seguida, o povo da casa
+      e os visitantes são servidos com as comidas rituais preparadas a partir das carnes dos
+      animais ofertados.
+    </p>
+
+    <div class="info-box">
+      <p class="box-title">A Importância de Cada Comida</p>
+      <p>As comidas do Elebó não são servidas ao acaso — cada prato corresponde ao reino e
+      à natureza das entidades presentes. Servir as comidas certas é honrar os Exus e garantir
+      que a energia da festa seja abundante e harmoniosa para todos os presentes.</p>
+    </div>
+
+    <h3 class="section-title">O Espírito do Elebó</h3>
+    <p>
+      Mais do que uma obrigação, o Elebó é uma celebração. É o momento em que o terreiro
+      respira junto — entidades, filhos e visitantes compartilham a mesma energia de alegria
+      e gratidão. Quem participa de um Elebó bem feito sente na pele a força e a abundância
+      que a Kabala de Mussifin é capaz de gerar.
+    </p>
+
+    <div class="page-number">— 10 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO VII                                                   -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo VII <span class="stars">✦</span></p>
+    <h1 class="chapter-title">O Movimento de Exu</h1>
+    <h2 class="chapter-subtitle">Despachar a Rua</h2>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      Fazer a feitura sem movimentar a energia é como ter um carro sem combustível.
+      O <strong>Movimento de Exu</strong>, também chamado de <strong>Despachar a Rua</strong>,
+      é o ritual semanal que mantém o fluxo de proteção, saúde, prosperidade e progresso para
+      os filhos da casa.
+    </p>
+
+    <h3 class="section-title">Como se Faz o Despacho</h3>
+
+    <h4 class="sub-title">Despacho das Quartinhas</h4>
+    <p>
+      As águas das quartinhas são despachadas na frente do terreiro ou num cruzeiro próximo, e
+      as quartinhas são enchidas novamente. A água representa a vida; renovar a água é renovar
+      a vida.
+    </p>
+
+    <h4 class="sub-title">Despacho dos Padês</h4>
+    <p>
+      Os padês são despachados na frente do terreiro ou num cruzeiro próximo. Esse ato representa
+      oferecer alimento à natureza, pedindo que nunca falte sustento e saúde.
+    </p>
+
+    <h4 class="sub-title">Renovação do Ciclo</h4>
+    <p>
+      Um novo padê é preparado e colocado. Na semana seguinte, o processo se repete, criando um
+      ciclo permanente de movimento e proteção.
+    </p>
+
+    <h4 class="sub-title">Materiais do Despacho Semanal</h4>
+    <ul class="bullet-list">
+      <li>Farinha de mandioca</li>
+      <li>Dendê</li>
+      <li>Cachaça (para Exu)</li>
+      <li>Champanhe ou mel (para Pomba Gira)</li>
+      <li>Água limpa para as quartinhas</li>
+      <li>Velas (conforme o pedido da semana)</li>
+    </ul>
+
+    <h3 class="section-title">O Dia e a Hora Certos</h3>
+    <p>
+      O movimento deve ser realizado preferencialmente à meia-noite de sexta para sábado —
+      o horário e o dia de maior movimentação dos Exus. Contudo, cada casa tem seus próprios
+      fundamentos e o mestre poderá orientar sobre o horário mais adequado ao ilê.
+    </p>
+
+    <h3 class="section-title">O Que Pedir no Movimento</h3>
+    <p>
+      O momento do despacho é uma conversa direta com as entidades da casa. Peça de forma
+      clara e objetiva: proteção para os filhos, abertura de caminhos, afastamento de energias
+      negativas, saúde e prosperidade. Quanto mais verdadeiro e focado o pedido, mais forte
+      a resposta das entidades.
+    </p>
+
+    <div class="warning-box">
+      <p class="box-title">■ Atenção — A Corrente da Casa</p>
+      <p>
+        Todos os filhos da casa devem participar do ritual do movimento. Cada filho é um elo da
+        corrente energética do terreiro. Se um elo se rompe, toda a corrente é prejudicada.
+        Consciência e responsabilidade nas obrigações são a base da prosperidade espiritual.
+      </p>
+    </div>
+
+    <div class="page-number">— 11 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO VIII                                                  -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo VIII <span class="stars">✦</span></p>
+    <h1 class="chapter-title">O Desligamento na Kabala</h1>
+    <h2 class="chapter-subtitle">Rito do Falecimento de um Filho de Santo</h2>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      A Kabala cuida do filho de santo do início ao fim — inclusive após a morte. O ritual de
+      desligamento garante que a energia das Kabalas do falecido seja corretamente tratada e que
+      sua passagem seja respeitada.
+    </p>
+
+    <h3 class="section-title">Decisão sobre os Assentamentos</h3>
+    <p>Após a morte, o mestre deve consultar o guia mestre para decidir o destino das Kabalas:</p>
+
+    <h4 class="sub-title">Opção 1 — Despacho</h4>
+    <p>
+      Após o sétimo dia: quebrar e torcer todos os ferros e ferramentas, colocá-los em saco com
+      padê de Exu e Pomba Gira, esborrifar com águas e bebidas, cobrir com folhas de mamoeiro e
+      plantar num mato fechado. As guias são arrebentadas ou penduradas na Kabala.
+    </p>
+
+    <h4 class="sub-title">Opção 2 — Continuação do Culto</h4>
+    <p>
+      Lavar as Kabalas com ervas de Exu e 7 bebidas, colocá-las na casa das almas, onde passarão
+      a comer junto com o <strong>Foribalé</strong> (buraco de Exu).
+    </p>
+
+    <h3 class="section-title">Limpeza Ritual de Todos da Casa</h3>
+    <p>No dia da morte e após a missa do sétimo dia, todos do terreiro e da família devem realizar uma limpeza de Exu:</p>
+
+    <div class="two-col">
+      <ul class="bullet-list single">
+        <li>9 velas de sebo</li>
+        <li>1 vassoura de guanxuma ou mamoeiro</li>
+        <li>9 ovos brancos</li>
+        <li>Um padê de Exu</li>
+        <li>1 garrafa de cachaça</li>
+        <li>9 tiras de amorim preto</li>
+        <li>9 tiras de amorim vermelho</li>
+        <li>9 tiras de amorim branco</li>
+      </ul>
+
+      <div>
+        <h4 class="sub-title" style="margin-top:0;">Banho de Ervas Doces Após o Ritual</h4>
+        <ul class="bullet-list single">
+          <li>Alecrim</li>
+          <li>Pétalas de rosa</li>
+          <li>Manjericão</li>
+          <li>Espada de São Jorge</li>
+          <li>Levante</li>
+          <li>Açúcar cristal</li>
+          <li>Manjerona</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="page-number">— 12 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO IX                                                    -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo IX <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Guias, Ferramentas e Símbolos</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <h3 class="section-title">Vasilhas e Ferramentas por Entidade</h3>
+
+    <div class="two-col">
+      <div class="tools-section">
+        <h4>Exus de Cruzeiro</h4>
+        <ul class="bullet-list single">
+          <li>Alguidares fundos / vasos de barro</li>
+          <li>Pontos em ferro</li>
+          <li>Ponteiras</li>
+          <li>Tridentes</li>
+          <li>Chaves</li>
+          <li>Correntes</li>
+          <li>Cadeados</li>
+          <li>Facas</li>
+          <li>Moedas</li>
+          <li>Búzios</li>
+          <li>Esfera de aço</li>
+          <li>Azougue</li>
+        </ul>
+      </div>
+      <div class="tools-section">
+        <h4>Pomba Giras de Cruzeiro</h4>
+        <ul class="bullet-list single">
+          <li>Alguidares fundos / vasos de barro</li>
+          <li>Pontos em ferro</li>
+          <li>Ponteiras</li>
+          <li>Punhais</li>
+          <li>Adagas</li>
+          <li>Tridentes</li>
+          <li>Pulseiras</li>
+          <li>Joias douradas</li>
+          <li>Azougue</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="tools-section">
+        <h4>Exus de Almas</h4>
+        <ul class="bullet-list single">
+          <li>Caldeirão / alguidar fundo</li>
+          <li>Ponto em ferro</li>
+          <li>Foice</li>
+          <li>Pregos</li>
+          <li>Cruzes</li>
+          <li>Correntes</li>
+          <li>Facas</li>
+          <li>Ossos</li>
+          <li>Crânio</li>
+          <li>Caixão</li>
+          <li>Moedas</li>
+          <li>Búzios</li>
+        </ul>
+      </div>
+      <div class="tools-section">
+        <h4>Pomba Giras de Almas</h4>
+        <ul class="bullet-list single">
+          <li>Caldeirão / alguidar fundo</li>
+          <li>Tridentes</li>
+          <li>Ponteiras</li>
+          <li>Punhais</li>
+          <li>Crânio</li>
+          <li>Caixão</li>
+          <li>Agulhas</li>
+          <li>Alfinetes</li>
+          <li>Cruz de gesso</li>
+          <li>Joias</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="section-title">As Otás — Pedras Sagradas</h3>
+    <p>A Otá é a pedra que representa a essência da entidade dentro da Kabala. Cada entidade possui um formato específico:</p>
+
+    <table class="entity-table">
+      <tr><td>Exus do Cruzeiro</td><td>Pedra redonda com ponta</td></tr>
+      <tr><td>Pomba Giras do Cruzeiro</td><td>Pedra redonda</td></tr>
+      <tr><td>Exus de Almas</td><td>Pedra quadrada e furada</td></tr>
+      <tr><td>Pomba Giras de Almas</td><td>Pedra triangular furada</td></tr>
+      <tr><td>Povo da Praia</td><td>Pedras claras (referência ao mar)</td></tr>
+      <tr><td>Povo Cigano</td><td>Pedras de cristal</td></tr>
+    </table>
+
+    <div class="page-number">— 13 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO X                                                     -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo X <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Reinos, Cores e Entidades</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <h3 class="section-title">Cores das Guias por Entidade</h3>
+    <p>As guias (colares sagrados) identificam a entidade e o seu reino. Usar as cores corretas é fundamental para o alinhamento energético:</p>
+
+    <table class="entity-table">
+      <tr><td>Ogum Megê</td><td>Verde, vermelho e preto</td></tr>
+      <tr><td>Exus de Cruzeiro</td><td>Vermelho e preto / Preto e dourado</td></tr>
+      <tr><td>Giras de Cruzeiro</td><td>Vermelho e preto / Vermelho e rosa</td></tr>
+      <tr><td>Exus de Almas</td><td>Preto e branco / Preto e roxo / Preto, vermelho e branco</td></tr>
+      <tr><td>Giras de Almas</td><td>Preto, branco e roxo / Vermelho e roxo / Cinza</td></tr>
+      <tr><td>Exus de Praia</td><td>Vermelho, preto e azulão / Preto e azulão</td></tr>
+      <tr><td>Giras de Praia</td><td>Preto e azul / Preto, azul e branco</td></tr>
+      <tr><td>Exus do Mato</td><td>Preto e verde / Preto, verde e branco</td></tr>
+      <tr><td>Giras do Mato</td><td>Preto e verde / Preto, verde e branco</td></tr>
+      <tr><td>Povo do Oriente</td><td>Colorido / Correntes douradas / Joias e correntes prateadas</td></tr>
+    </table>
+
+    <h3 class="section-title">Materiais Rituais — Referência Rápida</h3>
+
+    <div class="two-col-3">
+      <div class="info-box" style="margin:0;">
+        <p class="box-title">Bebidas</p>
+        <ul class="bullet-list single">
+          <li>Cachaça</li>
+          <li>Champanhe</li>
+          <li>Cerveja</li>
+          <li>Whisky</li>
+          <li>Gin / Rum</li>
+          <li>Vinho</li>
+          <li>Licores</li>
+          <li>Água mineral</li>
+        </ul>
+      </div>
+      <div class="info-box" style="margin:0;">
+        <p class="box-title">Metais</p>
+        <ul class="bullet-list single">
+          <li>Ouro</li>
+          <li>Prata</li>
+          <li>Cobre</li>
+          <li>Estanho</li>
+          <li>Chumbo</li>
+          <li>Níquel</li>
+          <li>Alumínio</li>
+          <li>Azougue</li>
+        </ul>
+      </div>
+      <div class="info-box" style="margin:0;">
+        <p class="box-title">Terras</p>
+        <ul class="bullet-list single">
+          <li>Cruzeiro aberto</li>
+          <li>Cruzeiro fechado</li>
+          <li>Mato</li>
+          <li>Praia / Mar</li>
+          <li>Praia / Rio</li>
+          <li>Cemitério</li>
+          <li>Praça</li>
+          <li>Lama / Lodo</li>
+          <li>Hospital</li>
+          <li>Bancos</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="page-number">— 14 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO XI — AXÉ MIRIM                                       -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo XI <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Axés — Proteção, Cura e Abertura de Caminhos</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      Os axés são trabalhos rituais com objetivos específicos. Cada axé é dirigido a uma entidade
+      particular e utiliza materiais que vibram na mesma frequência do pedido.
+    </p>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Exu Mirim — Abertura de Caminhos</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>1 alguidar</li>
+        <li>Mel</li>
+        <li>Dendê</li>
+        <li>7 balas de mel</li>
+        <li>7 palheiros</li>
+        <li>7 moedas correntes</li>
+        <li>1 bico azul</li>
+        <li>1 Martini</li>
+        <li>Velas brancas e azuis</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer padê de mel e dendê, colocar as balas, moedas e o bico</li>
+        <li>Entregar numa praça perto da praia</li>
+        <li>Acender as velas</li>
+        <li>Chamar e cantar para Exu Mirim pedindo movimento financeiro</li>
+      </ol>
+    </div>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Exu Tiriri — Abertura de Caminhos</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>Dendê</li>
+        <li>Mel</li>
+        <li>1 cravo vermelho</li>
+        <li>7 velas vermelhas</li>
+        <li>1 licor ou batida</li>
+        <li>1 bacia de pipoca</li>
+        <li>1 punhado de moedas</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer padê de mel e dendê, passar tudo na pessoa</li>
+        <li>Levar a um cruzeiro movimentado</li>
+        <li>Fazer chuveiro de pipoca sobre a pessoa</li>
+      </ol>
+    </div>
+
+    <div class="page-number">— 15 —</div>
+  </div>
+</div>
+
+<!-- AXÉ GANGA / VELUDO -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Exu Ganga — Quebrar Feitiços</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>Dendê</li>
+        <li>Toicinho</li>
+        <li>Fumo em ramo</li>
+        <li>7 charutos</li>
+        <li>1 cachaça</li>
+        <li>Velas de sebo</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer padê de dendê</li>
+        <li>Passar na pessoa o padê, toicinho, o fumo, as velas, os charutos, a cachaça</li>
+        <li>Entregar dentro do mato, chamando Exu Ganga</li>
+      </ol>
+    </div>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Exu Veludo — Doenças na Perna / Trombose</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>1 alguidar grande</li>
+        <li>Dendê</li>
+        <li>Mel</li>
+        <li>1 perna de boi inteira</li>
+        <li>1 calça da pessoa doente</li>
+        <li>1 pano preto</li>
+        <li>1 cachaça</li>
+        <li>1 vinho tinto</li>
+        <li>7 charutos</li>
+        <li>7 velas brancas / verdes</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer padê de mel e dendê no alguidar</li>
+        <li>Passar o pano preto na perna doente e enrolar na perna do boi</li>
+        <li>Vestir a calça na perna da pessoa, depois na perna do boi</li>
+        <li>Levar numa figueira, encostar na árvore</li>
+        <li>Acender velas e charutos, despejar bebidas por cima</li>
+      </ol>
+    </div>
+
+    <div class="page-number">— 16 —</div>
+  </div>
+</div>
+
+<!-- AXÉ GANGA SAÚDE / OMULU / GIRA MUNDO -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Exu Ganga — Cura de Doenças</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>1 alguidar</li>
+        <li>1 bife de fígado</li>
+        <li>1 bife de gado</li>
+        <li>Dendê</li>
+        <li>Mel</li>
+        <li>1 vela preta</li>
+        <li>1 vela verde</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Passar dendê no bife de gado</li>
+        <li>Passar na parte doente da pessoa</li>
+        <li>Levar no mato e oferecer a Exu Ganga</li>
+        <li>Acender as velas</li>
+      </ol>
+    </div>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Troca para Exu Omulu — Saúde</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>Pipoca</li>
+        <li>Dendê</li>
+        <li>Feijão preto</li>
+        <li>9 velas de sebo</li>
+        <li>1 vassoura de amorim roxo</li>
+        <li>1 roupa velha</li>
+        <li>1 galo vermelho e preto</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer pacotes com padê de dendê, pipoca estourada e feijão torrado</li>
+        <li>Passar tudo na pessoa ou na roupa</li>
+        <li>Abrir o galo pelas costas, rechear com o material</li>
+        <li>Fazer num mato ou lomba</li>
+      </ol>
+    </div>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Exu Gira Mundo — Promoção no Trabalho</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>Dendê</li>
+        <li>Cachaça</li>
+        <li>7 charutos</li>
+        <li>1 bacia de pipoca</li>
+        <li>Nome dos patrões</li>
+        <li>4 velas</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer padê de dendê</li>
+        <li>Estourar pipoca com dendê e colocar os nomes dos patrões</li>
+        <li>Ir a um cruzeiro aberto, arriar tudo em volta da pessoa</li>
+        <li>Acender velas nos 4 cantos</li>
+        <li>Atirar pipoca sobre a pessoa enquanto ela gira para a direita e faz seus pedidos</li>
+      </ol>
+    </div>
+
+    <div class="page-number">— 17 —</div>
+  </div>
+</div>
+
+<!-- AXÉ ZÉ PILINTRA / MIRIM CRIANÇAS / MARÉ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Exu Zé Pilintra — Sorte e Prosperidade</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>1 bandeja redonda</li>
+        <li>Mel</li>
+        <li>Dendê</li>
+        <li>Cachaça</li>
+        <li>1 bife mal passado</li>
+        <li>1 cerveja</li>
+        <li>7 cigarros</li>
+        <li>1 baralho</li>
+        <li>1 dado</li>
+        <li>7 velas brancas</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Colocar tudo na bandeja redonda</li>
+        <li>Entregar em cruzeiro aberto, praça ou perto de bar com jogos</li>
+      </ol>
+    </div>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Exu Mirim — Proteger Crianças de Espíritos (7–14 anos)</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>1 bandeja</li>
+        <li>Farinha de mandioca</li>
+        <li>Mel</li>
+        <li>Guaraná</li>
+        <li>Martini</li>
+        <li>7 rapaduras de palha</li>
+        <li>7 bolinhas de gude</li>
+        <li>7 velas brancas</li>
+        <li>Canjica branca</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Colocar na bandeja todos os ingredientes</li>
+        <li>Passar na roupa da criança</li>
+        <li>Entregar em cruzeiro perto de praça</li>
+        <li>Dar banho de água de canjica na criança por 7 dias</li>
+      </ol>
+    </div>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Mesa para Exu Maré e Pomba Gira da Praia — Prosperidade</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>3 bandejas</li>
+        <li>Charque</li>
+        <li>Pimenta</li>
+        <li>Camarão</li>
+        <li>Marisco</li>
+        <li>Arroz</li>
+        <li>7 rosas brancas</li>
+        <li>7 cravos brancos</li>
+        <li>Martini branco</li>
+        <li>Cerveja</li>
+        <li>7 velas brancas</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer carreteiro de charque com pimenta</li>
+        <li>Fazer arroz com camarão e arroz com marisco</li>
+        <li>Entregar em gramado na beira da praia, rio ou cachoeira</li>
+        <li>Cantar e chamar Exu Maré e Pomba Gira da Praia</li>
+      </ol>
+    </div>
+
+    <div class="page-number">— 18 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO XII — DEMANDA                                         -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo XII <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Axés de Demanda e Trabalhos Especiais</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      Os trabalhos de demanda são pedidos que envolvem conflitos, proteção contra inimigos,
+      desfazimento de feitiços e resolução de disputas espirituais. Lembre-se sempre das
+      <strong>Duas Leis Kármicas</strong> antes de solicitar ou realizar qualquer demanda.
+    </p>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé de Exu — Contra Demanda Geral</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>Dendê</li>
+        <li>Cachaça</li>
+        <li>Guisado</li>
+        <li>7 pontos de pólvora</li>
+        <li>Velas brancas e pretas</li>
+        <li>Ervas para banho</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer padê de cachaça e dendê</li>
+        <li>Colocar uma cruz de guisado e dendê por cima</li>
+        <li>Passar tudo na pessoa</li>
+        <li>Fazer pontos de pólvora</li>
+        <li>Tomar banho de ervas</li>
+        <li>Levar o axé para o mato ou portão da lomba</li>
+      </ol>
+    </div>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Exu 7 Cruzeiros e Gira Rainha — Desfazer Feitiço</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>Dendê</li>
+        <li>Cachaça</li>
+        <li>Mel</li>
+        <li>Champanhe</li>
+        <li>7 charutos</li>
+        <li>7 cigarros</li>
+        <li>7 velas vermelhas</li>
+        <li>7 velas brancas</li>
+        <li>1 linha preta</li>
+        <li>1 linha vermelha</li>
+        <li>1 linha branca</li>
+        <li>Tesoura ou faca</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer padê de Exu (dendê e cachaça) e padê de Pomba Gira (mel e champanhe)</li>
+        <li>Passar os padês e as velas na pessoa</li>
+        <li>Enrolar a pessoa com as três linhas</li>
+        <li>Cortar as linhas pedindo a desatadura do feitiço</li>
+        <li>Entregar no cruzeiro para Exu 7 Cruzeiros e Pomba Gira Rainha</li>
+      </ol>
+    </div>
+
+    <div class="page-number">— 19 —</div>
+  </div>
+</div>
+
+<!-- DEMANDA CONTINUAÇÃO -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Exu Brasa — Quebrar Demanda</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>Dendê</li>
+        <li>9 pedaços de carvão</li>
+        <li>3 charutos</li>
+        <li>1 cachaça</li>
+        <li>9 velas de sebo</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer padê de dendê, passar tudo na pessoa</li>
+        <li>Levar num mato embaixo de uma árvore grande ou queimada</li>
+      </ol>
+    </div>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Exu Caveira — Limpeza de Corpo</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>Dendê</li>
+        <li>9 ovos brancos</li>
+        <li>9 charutos</li>
+        <li>1 cachaça</li>
+        <li>1 osso de caracu</li>
+        <li>9 velas de sebo</li>
+        <li>1 vassoura de guanxuma</li>
+        <li>1 vassoura de mamoeiro</li>
+        <li>9 galhos de figueira</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer padê de dendê</li>
+        <li>Passar tudo na pessoa</li>
+        <li>Despachar no mato ou num cruzeiro de lomba</li>
+      </ol>
+    </div>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Maria Mulambo — Contra Demanda</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>Dendê</li>
+        <li>Mel</li>
+        <li>Cachaça</li>
+        <li>Champanhe</li>
+        <li>1 berinjela</li>
+        <li>Guisado</li>
+        <li>Pimenta</li>
+        <li>Sal grosso</li>
+        <li>Azougue</li>
+        <li>Manjericão</li>
+        <li>Cebola roxa</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer padê de mel, cachaça e champanhe</li>
+        <li>Temperar guisado com pimenta, sal grosso, azougue, manjericão e os nomes dos inimigos</li>
+        <li>Rechear a berinjela com o guisado temperado</li>
+        <li>Cortar 9 rodelas de cebola roxa untadas com dendê</li>
+        <li>Entregar num mato ou lixão</li>
+      </ol>
+    </div>
+
+    <div class="page-number">— 20 —</div>
+  </div>
+</div>
+
+<!-- DEMANDA FINAL -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Exu Rei e Gira Rainha — Abertura de 7 Caminhos</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>7 bandejas</li>
+        <li>28 velas vermelhas (4 por bandeja)</li>
+        <li>49 charutos (7 por bandeja)</li>
+        <li>49 cigarros (7 por bandeja)</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer 7 padês de dendê e cachaça</li>
+        <li>Passar por 7 cruzeiros abertos</li>
+        <li>Em cada cruzeiro, arriar uma bandeja e acender uma vela em cada canto</li>
+        <li>Cantar e chamar Exu Rei e Pomba Gira Rainha</li>
+      </ol>
+    </div>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Mesa para Maria Mulambo — Demanda Pesada</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>1 toalha roxa</li>
+        <li>9 latas com nome dos inimigos</li>
+        <li>1 espelho</li>
+        <li>Berinjela</li>
+        <li>Guisado</li>
+        <li>9 pimentas vermelhas</li>
+        <li>Cachaça</li>
+        <li>Champanhe</li>
+        <li>Rosas vermelhas</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Preparar 9 latas cada uma com conteúdo diferente (arroz, couve, café, etc.)</li>
+        <li>Fazer padê de dendê e mel numa bandeja</li>
+        <li>Rechear berinjela com guisado e rechear as pimentas com os nomes</li>
+        <li>Arriar a mesa embaixo de uma figueira</li>
+        <li>Antes de sair, quebrar o espelho em cima das latas</li>
+      </ol>
+    </div>
+
+    <div class="ritual-card no-break">
+      <p class="card-title">Axé para Maria Quitéria — Demanda</p>
+      <p class="ingredients-title">Ingredientes</p>
+      <ul class="bullet-list">
+        <li>Dendê</li>
+        <li>Mel</li>
+        <li>Cachaça</li>
+        <li>Champanhe</li>
+        <li>9 tiras de fígado</li>
+        <li>9 cebolas roxas</li>
+        <li>9 giletes</li>
+        <li>9 velas brancas</li>
+        <li>9 bolinhas de guisado</li>
+      </ul>
+      <p class="steps-title">Como Fazer</p>
+      <ol class="steps-list">
+        <li>Fazer padê de mel, dendê, cachaça e champanhe</li>
+        <li>Passar as tiras de fígado no dendê</li>
+        <li>Cortar as cebolas ao meio e colocar uma gilete com o nome dos inimigos</li>
+        <li>Entregar na lomba ou no mato</li>
+        <li>Antes de sair, atirar a garrafa de champanhe para estourar</li>
+      </ol>
+    </div>
+
+    <div class="page-number">— 21 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO XIII — NOMES                                         -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo XIII <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Nomes Kabalisticos Sagrados</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      Os nomes kabalisticos são designações sagradas usadas em rituais e evocações. Cada nome
+      carrega uma vibração específica e deve ser pronunciado com intenção e respeito.
+    </p>
+
+    <table class="names-table">
+      <tr><td>A</td><td>Axexerem, Axaira, Axexeque, Axerecum, Axeque, Axereum, Axequere, Axoxorum, Aderum, Axoquedã, Adegraum, Adedaim, Arqueteum, Aruele, Asmodeus, Astharoth, Astamet</td></tr>
+      <tr><td>B</td><td>Bajomed, Bequerê, Bedoque, Bodexê, Bakeke, Baxoquê, Baraem, Beliat, Bhemord</td></tr>
+      <tr><td>D</td><td>Dobokê, Dainã</td></tr>
+      <tr><td>E</td><td>Elequa, Exumalê, Exulonã, Exularô, Exu Tiriri, Elexu, Eloroque, Eleroque, Erunde, Exequere, Eluradê, Exexerem, Ejé Rexe, Exarodo, Elodim, Elado, Evora, Exumor</td></tr>
+      <tr><td>F</td><td>Franix, Fanchere, Ferode, Faradoim, Fherethy, Fakaró, Fenfen, Filadu, Fukuela, Furunde, Fumicoe, Friaman, Famadu</td></tr>
+      <tr><td>G</td><td>Gangath Lucigatãn, Gangrenuth, Granje, Gangalu, Grifum, Guendele, Guendeke, Gramor, Girunde, Giumarê, Gamuche, Gamudê, Grifor</td></tr>
+      <tr><td>H</td><td>Hael Helmur, Hardem, Hajamade, Hilkad, Heremick Jadur</td></tr>
+      <tr><td>I</td><td>Ikijé</td></tr>
+      <tr><td>J</td><td>Jemahe, Jimerk, Jokold</td></tr>
+      <tr><td>K</td><td>Karaô, Kakundê, Kakuele, Kendele, Kanjuge, Kequeidu, Karakuruká, Kalele, Kemidaím, Katimbô, Keluelu, Katiçoim, Kaluere, Kemaide, Katuegum, Kedaqueri, Karaqueke, Kerieri, Kaminulá, Kalórueçu, Karadorê, Karaxue, Kiquija, Kaguneço, Kimaloque, Kodeliseu, Kodelê, Kemueçu, Kremaré, Komoeque, Keiku</td></tr>
+      <tr><td>L</td><td>Loque, Leleke, Lord D'Mort, Lejundur, Leputh, Leset, Lukart, Lenpher, Lilith</td></tr>
+      <tr><td>M</td><td>Mamek, Mankare, Mukexê, Muquerê, Muxexe, Mulambê, Mulankê, Mithaé, Mixakê, Mavambo, Marunje, Morgad</td></tr>
+      <tr><td>N</td><td>Nanchere, Namarê, Naxarê, Nabaré, Nicancê, Nikacue, Nebante, Necantu, Navorê, Navalhe, Nakalê, Nesbirus</td></tr>
+      <tr><td>O</td><td>Okaracê, Okemode, Oraiku, Oramakê, Odomakê, Okuile, Oraimã, Okexere, Oxeiku</td></tr>
+      <tr><td>P</td><td>Pantek, Praduk, Punthk, Praxere</td></tr>
+      <tr><td>Q</td><td>Quendelê, Quexerê, Quenxirê, Quenxele</td></tr>
+      <tr><td>S</td><td>Sashatãn, Shetmat, Shegat</td></tr>
+      <tr><td>T</td><td>Thanche, Thogãn</td></tr>
+      <tr><td>V</td><td>Vadoim, Vamputh, Vacherê, Vankere, Vadeim, Vaxumare</td></tr>
+    </table>
+
+    <div class="page-number">— 22 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- GLOSSÁRIO                                                      -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Glossário <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Termos Essenciais da Kabala</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <table class="glossary-table">
+      <tr><td>Axé</td><td>Força, energia sagrada. Também se refere aos trabalhos rituais e às oferendas.</td></tr>
+      <tr><td>Alguidar</td><td>Vasilha de barro usada para assentamentos e oferendas.</td></tr>
+      <tr><td>Arriado</td><td>Oferenda posta no lugar correto para a entidade.</td></tr>
+      <tr><td>Assentamento</td><td>Objeto físico onde a energia de uma entidade é fixada e trabalhada.</td></tr>
+      <tr><td>Azougue</td><td>Mercúrio. Metal usado em feituras por sua natureza líquida e vibrante.</td></tr>
+      <tr><td>Caboclo</td><td>Espírito de índio ou ancestral que atua como guia na Umbanda.</td></tr>
+      <tr><td>Calçamento</td><td>Proteção espiritual feita no terreiro e em suas entradas.</td></tr>
+      <tr><td>Conga</td><td>Altar ou espaço sagrado onde residem as entidades.</td></tr>
+      <tr><td>Dendê</td><td>Óleo de palma. Elemento fundamental em axés e feituras de Exu.</td></tr>
+      <tr><td>Despacho</td><td>Ato de enviar uma oferenda a um local específico da natureza.</td></tr>
+      <tr><td>Ecó</td><td>Oferenda ritual específica para determinadas entidades.</td></tr>
+      <tr><td>Elebó</td><td>Festa ritualística onde os feitos são apresentados e as entidades festejadas.</td></tr>
+      <tr><td>Egum</td><td>Espírito de ancestral morto; força dos mortos cultuada em rituais.</td></tr>
+      <tr><td>Entidade</td><td>Ser espiritual que se manifesta ou trabalha dentro da religião.</td></tr>
+      <tr><td>Feitura</td><td>Processo completo de preparo, consagração e ativação de um assentamento.</td></tr>
+      <tr><td>Foribalé</td><td>Buraco sagrado de Exu, local onde as Kabalas dos mortos são depositadas.</td></tr>
+      <tr><td>Frente</td><td>Oferenda dirigida a uma entidade específica para um fim determinado.</td></tr>
+      <tr><td>Guia</td><td>Colar sagrado que identifica a entidade de um médium.</td></tr>
+      <tr><td>Ilê</td><td>Casa de religião, terreiro.</td></tr>
+      <tr><td>Levantação</td><td>Ritual de retirada e despacho das obrigações após o período de assentamento.</td></tr>
+      <tr><td>Lomba</td><td>Local elevado, morro; ponto de entrega de trabalhos de certos reinos.</td></tr>
+      <tr><td>Matança / Corte</td><td>Sacrifício ritual de animal para consagrar uma Kabala com a menga.</td></tr>
+      <tr><td>Médium</td><td>Pessoa que incorpora ou se relaciona espiritualmente com as entidades.</td></tr>
+      <tr><td>Menga</td><td>Sangue do animal sacrificado; representa a vida e a força vital.</td></tr>
+      <tr><td>Otá</td><td>Pedra sagrada que representa a entidade dentro da Kabala.</td></tr>
+      <tr><td>Padê</td><td>Oferenda feita com farinha de mandioca, dendê e bebida; é o alimento de Exu.</td></tr>
+      <tr><td>Ponto de Pólvora</td><td>Ritual de limpeza e proteção usando pólvora acesa.</td></tr>
+      <tr><td>Tabatinga</td><td>Mistura de terras, ervas, bebidas e metais que compõe o interior da Kabala.</td></tr>
+    </table>
+
+    <div class="page-number">— 23 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ENCERRAMENTO                                                   -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; min-height:200px; margin-top:80px;">
+      <div class="divider"><div class="divider-diamond"></div></div>
+
+      <div class="closing-divider" style="display:flex;justify-content:center;gap:16px;font-size:1.4rem;color:#b8962e;margin:30px 0;">
+        ✦ ✦ ✦
+      </div>
+
+      <div class="divider"><div class="divider-diamond"></div></div>
+
+      <p style="font-style:italic;color:#5a4020;font-size:1rem;line-height:1.9;text-align:center;max-width:380px;margin:30px auto 16px;">
+        Este guia foi preparado com respeito e dedicação para todos que caminham nos
+        caminhos de Mussifin. Que o conhecimento aqui compartilhado ilumine sua jornada,
+        fortaleça sua fé e aprofunde sua relação com as entidades.
+      </p>
+
+      <p style="font-style:italic;color:#7a1515;font-size:1.1rem;text-align:center;margin-top:30px;">
+        "Que Exu abra seus caminhos e Ogum Megê proteja sua jornada."
+      </p>
+
+      <div class="divider" style="margin-top:40px;"><div class="divider-diamond"></div></div>
+    </div>
+
+    <div class="info-box" style="margin-top:20px;">
+      <p class="box-title">O Que Vem a Seguir</p>
+      <p>
+        A Parte II deste guia — o <strong>Guia Educativo</strong> — aprofunda o significado
+        espiritual de cada ritual aqui apresentado. Se o Volume I ensinou <em>o que fazer</em>,
+        o Volume II explica <em>por que se faz</em>. Juntos, formam uma compreensão completa
+        e respeitosa da Kabala de Mussifin.
+      </p>
+      <p style="margin-top:8px;">
+        Que a leitura do próximo volume ilumine ainda mais o seu caminho.
+      </p>
+    </div>
+
+    <div class="page-number">— 24 —</div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- DIVISÓRIA PARTE II                                             -->
+<!-- ============================================================ -->
+<div class="page cover" style="background:#1a0a06;">
+  <div class="page-inner" style="border-color:var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <div class="cover-line"></div>
+
+    <p style="font-family:'Cinzel',serif;font-size:0.8rem;letter-spacing:0.35em;color:var(--gold);text-transform:uppercase;margin-bottom:20px;">✦ Parte II ✦</p>
+
+    <h1 style="font-family:'Cinzel',serif;font-size:2.8rem;font-weight:900;color:#f0e8d5;letter-spacing:0.08em;line-height:1.2;margin-bottom:10px;">GUIA DA KABALA</h1>
+    <h2 style="font-family:'Cinzel',serif;font-size:1.6rem;font-weight:700;color:var(--red-light);letter-spacing:0.08em;margin-bottom:24px;">DE MUSSIFIN</h2>
+
+    <div class="cover-bar" style="margin:10px 0;">ENTENDENDO O PAPEL DO PAI DE SANTO E OS FUNDAMENTOS ESPIRITUAIS</div>
+
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold-light);font-size:0.97rem;letter-spacing:0.05em;margin-top:28px;max-width:340px;">
+      Um guia completo para membros da comunidade religiosa compreenderem os rituais,
+      responsabilidades e significados da tradição espiritual afro-brasileira
+    </p>
+
+    <div class="cover-line" style="margin-top:32px;"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PARTE II — INTRODUÇÃO                                          -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Introdução <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Para Quem É Este Guia</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      Este guia foi criado especialmente para você, membro da nossa comunidade espiritual, que
+      deseja compreender melhor os fundamentos, rituais e responsabilidades dentro da
+      <strong>Kabala de Mussifin</strong>. Muitas vezes, os rituais podem parecer complexos ou
+      distantes, mas cada ação tem um significado profundo e uma razão de ser.
+    </p>
+
+    <h3 class="section-title">Para Quem é Este Guia?</h3>
+    <p>Este material é destinado a todos os membros da casa religiosa que desejam:</p>
+    <ul class="bullet-list single">
+      <li>Compreender o papel e as responsabilidades do pai ou mãe de santo</li>
+      <li>Entender por que cada ritual é realizado</li>
+      <li>Conhecer os fundamentos espirituais da tradição</li>
+      <li>Participar de forma mais consciente e significativa das cerimônias</li>
+      <li>Respeitar e valorizar cada etapa do caminho espiritual</li>
+    </ul>
+
+    <h3 class="section-title">O Que Você Vai Aprender</h3>
+    <p>
+      Ao longo deste guia, você vai descobrir os mistérios e significados por trás de cada
+      elemento da nossa tradição. Desde a origem da Kabala de Mussifin até os rituais
+      cotidianos, tudo será explicado de forma clara e respeitosa, mantendo a sacralidade dos
+      nossos ensinamentos.
+    </p>
+
+    <h3 class="section-title">Como Ler Este Guia</h3>
+    <p>
+      Não é preciso ler do início ao fim de uma só vez. Cada capítulo pode ser consultado
+      individualmente conforme surgem dúvidas no caminho espiritual. Porém, recomenda-se a
+      leitura integral ao menos uma vez para ter uma visão completa da tradição.
+    </p>
+
+    <div class="info-box">
+      <p class="box-title">Uma Palavra Sobre Respeito</p>
+      <p>
+        O conhecimento aqui contido foi transmitido de geração em geração dentro dos terreiros.
+        Ele é sagrado. Leia com reverência, aplique com responsabilidade e compartilhe apenas
+        com quem realmente pertence ao caminho. Alguns fundamentos são reservados ao ambiente
+        do ilê e não devem ser discutidos em espaços externos à religião.
+      </p>
+    </div>
+
+    <h3 class="section-title">Estrutura deste Volume</h3>
+    <ul class="bullet-list single">
+      <li><strong>Capítulos XIV–XV:</strong> O que é a Kabala e o papel do líder espiritual</li>
+      <li><strong>Capítulos XVI–XVII:</strong> Os rituais principais e os cuidados cotidianos</li>
+      <li><strong>Capítulos XVIII–XIX:</strong> Os reinos, entidades e tipos de axés</li>
+      <li><strong>Capítulos XX–XXI:</strong> Ética espiritual e como ser um bom filho de santo</li>
+      <li><strong>Conclusão:</strong> Reflexão sobre o caminho que continua</li>
+    </ul>
+
+    <div class="page-number">— 25 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO XIV                                                   -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo XIV <span class="stars">✦</span></p>
+    <h1 class="chapter-title">O Que É a Kabala de Mussifin?</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      A Kabala de Mussifin é uma tradição espiritual afro-brasileira com raízes profundas na
+      África ancestral, especialmente ligada aos cultos de <strong>Egum</strong> (espíritos
+      ancestrais). Ao longo dos séculos, esta tradição recebeu influências de diversas práticas
+      mágicas e espirituais, incluindo elementos franceses, chineses, hindus e maias,
+      tornando-se um sistema completo e complexo de rituais e feituras.
+    </p>
+
+    <h3 class="section-title">Características Principais</h3>
+    <p>A Kabala de Mussifin se distingue por algumas características únicas:</p>
+
+    <div class="info-box">
+      <p><strong>1. Completude Ritualística</strong> — Oferece rituais para todas as fases da
+      vida espiritual, desde a iniciação (feitura) até o desligamento após a morte física.</p>
+      <p><strong>2. Trabalho com Todas as Forças</strong> — Diferente de algumas tradições que
+      trabalham apenas com forças "positivas", a Kabala reconhece e trabalha com todas as
+      energias da natureza, sem rotulá-las como "boas" ou "más".</p>
+      <p><strong>3. Livre Arbítrio e Lei do Retorno</strong> — As entidades respeitam
+      profundamente o livre arbítrio de cada pessoa e a lei kármica do retorno — o que você
+      faz retorna para você.</p>
+      <p><strong>4. Conexão com a Natureza</strong> — Trabalha com todos os elementos
+      (terra, água, ar, fogo) e todos os reinos da natureza (cruzeiro, almas, praia, mato,
+      oriente).</p>
+    </div>
+
+    <div class="warning-box">
+      <p class="box-title">■ Importante</p>
+      <p>Na Kabala de Mussifin não existe o conceito tradicional de 'bem' e 'mal'. As
+      entidades trabalham com as forças da natureza, e cabe a cada pessoa usar seu
+      discernimento e responsabilidade ao solicitar trabalhos espirituais.</p>
+    </div>
+
+    <div class="page-number">— 26 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO XV                                                    -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo XV <span class="stars">✦</span></p>
+    <h1 class="chapter-title">O Papel do Pai ou Mãe de Santo</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      O pai ou mãe de santo não é simplesmente um líder religioso — é um mestre espiritual,
+      um guardião de tradições ancestrais, um curador, um conselheiro e um intermediário entre
+      os mundos visível e invisível. Compreender suas responsabilidades nos ajuda a valorizar e
+      respeitar seu trabalho.
+    </p>
+
+    <h3 class="section-title">Responsabilidades Espirituais</h3>
+
+    <div class="two-col">
+      <div class="step-box no-break">
+        <div class="step-number">1. Guardião da Tradição</div>
+        <p>Preserva e transmite conhecimentos sagrados passados de geração em geração, mantendo viva a conexão com os ancestrais.</p>
+      </div>
+      <div class="step-box no-break">
+        <div class="step-number">2. Mediador Entre Mundos</div>
+        <p>Faz a ponte entre as entidades espirituais (Exus, Pomba Giras, Caboclos) e os consulentes, interpretando mensagens e orientações.</p>
+      </div>
+      <div class="step-box no-break">
+        <div class="step-number">3. Condutor de Rituais</div>
+        <p>Conhece a sequência específica, materiais corretos e momentos adequados de cada ritual, garantindo que tudo seja feito corretamente.</p>
+      </div>
+      <div class="step-box no-break">
+        <div class="step-number">4. Protetor da Casa</div>
+        <p>Mantém o terreiro energeticamente protegido e equilibrado, realizando calçamentos, defumações e oferendas de proteção regularmente.</p>
+      </div>
+    </div>
+
+    <div class="step-box no-break" style="margin-top:4px;">
+      <div class="step-number">5. Conselheiro e Curador</div>
+      <p>Oferece orientação espiritual, emocional e prática para os membros da comunidade, auxiliando em problemas de saúde, relacionamentos, trabalho e questões espirituais.</p>
+    </div>
+
+    <h3 class="section-title">Por Que Alguns Rituais Parecem Complexos?</h3>
+    <p>A resposta está na <strong>precisão espiritual</strong>:</p>
+    <ul class="bullet-list single">
+      <li><strong>Cada elemento tem um significado:</strong> As terras de diferentes lugares carregam energias específicas. As bebidas, ervas, metais — tudo tem uma razão de ser.</li>
+      <li><strong>A ordem importa:</strong> Assim como uma receita culinária, a sequência dos passos afeta o resultado final do trabalho espiritual.</li>
+      <li><strong>Segurança energética:</strong> Muitos passos são proteções para quem realiza e para quem recebe o ritual.</li>
+      <li><strong>Respeito às entidades:</strong> As entidades espirituais têm suas preferências e formas de trabalho. Seguir o protocolo correto é uma forma de respeito.</li>
+    </ul>
+
+    <div class="page-number">— 27 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO XVI                                                   -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo XVI <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Entendendo os Rituais Principais</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>Vamos desmistificar os principais rituais da Kabala de Mussifin. Cada um tem um propósito específico e segue uma lógica espiritual profunda.</p>
+
+    <h3 class="section-title">1. A Montagem da Kabala (Assentamento)</h3>
+    <p><strong>O que é:</strong> É a criação física da "casa" onde a energia do Exu ou Pomba Gira vai residir e responder. É como construir uma antena espiritual.</p>
+    <ul class="bullet-list single">
+      <li>As <em>terras</em> de diferentes lugares (cruzeiro, cemitério, praia, mato) trazem as energias dos reinos onde essas entidades trabalham</li>
+      <li>As <em>ervas e bebidas</em> são como um convite, uma oferenda que atrai e agrada a entidade</li>
+      <li>Os <em>metais</em> (ouro, prata, cobre, etc.) conduzem energia espiritual</li>
+      <li>As <em>ferramentas</em> (tridentes, facas, ponteiras) são os instrumentos de trabalho da entidade</li>
+      <li>A <em>pedra (otá)</em> é o coração do assentamento, onde a essência da entidade se fixa</li>
+    </ul>
+
+    <h3 class="section-title">2. O Ritual do Fogo</h3>
+    <p><strong>O que é:</strong> Antes da consagração, as kabalas recebem dendê e álcool e são queimadas ritualmente.</p>
+    <p><strong>Significado:</strong> O fogo é um elemento de transformação e purificação. Este ritual: purifica energeticamente os assentamentos, ativa as energias contidas nos materiais, simboliza a transformação do material em sagrado e cria uma ponte entre o mundo físico e espiritual.</p>
+
+    <h3 class="section-title">3. A Matança (Sacrifício Animal)</h3>
+    <p><strong>O que é:</strong> Oferta de animais às entidades espirituais. Esta é uma das práticas mais mal compreendidas, mas tem profundo significado:</p>
+    <ul class="bullet-list single">
+      <li>O sangue (menga) representa a vida e a essência da natureza</li>
+      <li>É uma oferta de energia vital para as entidades</li>
+      <li>Fortalece a ligação entre o médium e sua entidade</li>
+      <li>A carne é distribuída e comida pela comunidade (elebó), simbolizando partilha e abundância</li>
+    </ul>
+    <p><strong>Respeito ao animal:</strong> Há grande respeito e gratidão ao animal ofertado. Nada é desperdiçado — parte fica no assentamento, parte é cozida e servida à comunidade.</p>
+
+    <h3 class="section-title">4. A Levantação</h3>
+    <p><strong>O que é:</strong> Após 3 ou 7 dias do corte, os materiais ofertados são removidos e despachados. A energia já foi absorvida pelas entidades, e o despacho no mato devolve à natureza o que veio da natureza.</p>
+    <p><strong>Dia especial:</strong> É neste dia que ocorrem as "confirmações" — testes para verificar se a entidade realmente está presente e trabalhando.</p>
+
+    <h3 class="section-title">5. O Elebó (Festa da Fartura)</h3>
+    <p>Uma celebração onde as carnes dos animais ofertados são preparadas e servidas a todos. Celebra a conclusão da feitura, partilha a benção e abundância, fortalece os laços comunitários e apresenta oficialmente os novos feitos. <strong>É um momento de alegria:</strong> após dias de trabalho espiritual intenso, o elebó é uma confraternização onde entidades, médiuns e comunidade celebram juntos.</p>
+
+    <div class="page-number">— 28 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO XVII                                                  -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo XVII <span class="stars">✦</span></p>
+    <h1 class="chapter-title">O Movimento de Exu</h1>
+    <h2 class="chapter-subtitle">e os Cuidados Contínuos</h2>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      Fazer a feitura é apenas o começo. Para que a energia trabalhe a nosso favor, é
+      necessária manutenção constante — o que chamamos de <strong>"movimento"</strong>.
+    </p>
+
+    <h3 class="section-title">O Que É o Movimento?</h3>
+    <p><strong>Despachar a rua</strong> significa renovar as águas das quartinhas e os padês do ilê de Exu regularmente. É como:</p>
+
+    <ul class="bullet-list single">
+      <li><strong>Renovar a vida:</strong> A água representa a vida. Trocar a água é renovar a energia vital.</li>
+      <li><strong>Alimentar as entidades:</strong> Os padês são o alimento espiritual.</li>
+      <li><strong>Ativar a proteção:</strong> Ao despachar, pedimos que as entidades nos defendam e tragam boas energias.</li>
+      <li><strong>Manter a conexão:</strong> É uma forma de manter o diálogo ativo com o mundo espiritual.</li>
+    </ul>
+
+    <p><strong>Frequência:</strong> Geralmente semanal, sempre no mesmo dia e horário, criando uma disciplina espiritual.</p>
+
+    <h3 class="section-title">Por Que Todos os Filhos Devem Participar?</h3>
+    <p>Imagine uma corrente: cada filho da casa é um elo. Se um elo enfraquece, toda a corrente fica vulnerável. Quando todos participam do movimento:</p>
+
+    <ul class="bullet-list">
+      <li>A força coletiva se multiplica</li>
+      <li>A proteção da casa fica mais forte</li>
+      <li>Cada um recebe sua parte da energia renovada</li>
+      <li>O aprendizado é contínuo</li>
+      <li>A comunidade se fortalece</li>
+    </ul>
+
+    <p><strong>Não é obrigação pesada:</strong> É um compromisso de amor e respeito com sua própria jornada espiritual e com seus irmãos de fé.</p>
+
+    <div class="warning-box">
+      <p class="box-title">■ Reflexão</p>
+      <p>De nada adianta fazer feituras complexas e poderosas se não movimentamos essa energia. É como ter um carro potente mas nunca ligar o motor.</p>
+    </div>
+
+    <div class="page-number">— 29 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO XVIII                                                 -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo XVIII <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Os Reinos e as Entidades</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      Na Kabala de Mussifin, as entidades trabalham em diferentes "reinos" ou campos de
+      atuação na natureza. Cada reino tem suas características, energias e formas de trabalho.
+    </p>
+
+    <h3 class="section-title">Os Cinco Reinos Principais</h3>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Reino</th>
+          <th>Local de Trabalho</th>
+          <th>Características</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cruzeiro</td>
+          <td>Encruzilhadas e ruas</td>
+          <td>Movimento, oportunidades, caminhos, decisões</td>
+        </tr>
+        <tr>
+          <td>Almas</td>
+          <td>Cemitérios</td>
+          <td>Ancestralidade, justiça, karmas, transformação profunda</td>
+        </tr>
+        <tr>
+          <td>Praia</td>
+          <td>Mar, rios, lagos</td>
+          <td>Limpeza, renovação, amor, emoções, prosperidade</td>
+        </tr>
+        <tr>
+          <td>Mato</td>
+          <td>Florestas, matas</td>
+          <td>Cura, força, resistência, mistérios da natureza</td>
+        </tr>
+        <tr>
+          <td>Oriente</td>
+          <td>Transcendental</td>
+          <td>Sabedoria, riqueza, clareza, magia elevada</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="section-title">A Ligação com os Caboclos</h3>
+    <p>Em muitas casas, fazemos a ligação entre Kabala e Umbanda, trabalhando com os dois lados da energia:</p>
+    <ul class="bullet-list single">
+      <li><strong>Umbanda (Caboclos):</strong> Energia mais "positiva", de elevação e luz</li>
+      <li><strong>Kabala (Exus e Pomba Giras):</strong> Energia mais "densa", de ação e transformação</li>
+    </ul>
+    <p><strong>Como funciona:</strong> O Exu ou Pomba Gira fica subordinado ao Caboclo de frente do médium, trabalhando na mesma vibração energética.</p>
+
+    <h4 class="sub-title">Exemplos de pares:</h4>
+    <ul class="corr-list">
+      <li><strong>Cabocla Jurema</strong> (mata) → Exu Marabô (mato)</li>
+      <li><strong>Ogum Beira Mar</strong> (água) → Exu Maré (praia)</li>
+      <li><strong>Vô Joaquim</strong> (almas) → Exu Caveira (cemitério)</li>
+    </ul>
+
+    <h3 class="section-title">Os Pares ou Casais</h3>
+    <p>Na feitura, os assentamentos são feitos em pares — um Exu e uma Pomba Gira que trabalham juntos, geralmente do mesmo reino:</p>
+    <ul class="corr-list">
+      <li><strong>Exu Rei</strong> ↔ Pomba Gira Rainha (cruzeiro)</li>
+      <li><strong>Exu Caveira</strong> ↔ Maria Padilha (almas)</li>
+      <li><strong>Exu Maré</strong> ↔ Pomba Gira da Praia (água)</li>
+    </ul>
+    <p><strong>Por que em pares?</strong> Representa o equilíbrio entre as energias masculina e feminina, trazendo completude ao trabalho espiritual.</p>
+
+    <div class="page-number">— 30 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO XIX                                                   -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo XIX <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Axés e Trabalhos Espirituais</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      <strong>"Axé"</strong> significa força, energia, poder. Na Kabala, os axés são trabalhos
+      espirituais realizados para diferentes propósitos. Entenda os principais tipos e quando
+      são usados.
+    </p>
+
+    <h3 class="section-title">Tipos de Axés por Finalidade</h3>
+
+    <table class="entity-table">
+      <tr>
+        <td>Abertura de Caminhos</td>
+        <td><strong>Para:</strong> Desbloquear situações travadas, abrir portas, criar oportunidades<br>
+        <strong>Usam:</strong> Elementos de movimento e expansão<br>
+        <strong>Entidades:</strong> Exu Mirim, Exu Tiriri</td>
+      </tr>
+      <tr>
+        <td>Proteção</td>
+        <td><strong>Para:</strong> Defender de energias negativas, olho gordo, inveja, demandas<br>
+        <strong>Usam:</strong> Elementos que criam escudos energéticos<br>
+        <strong>Entidades:</strong> Ciganos da Estrada, Povo do Oriente</td>
+      </tr>
+      <tr>
+        <td>Limpeza Espiritual</td>
+        <td><strong>Para:</strong> Remover cargas negativas, eguns, feitiços<br>
+        <strong>Usam:</strong> Elementos de purificação<br>
+        <strong>Entidades:</strong> Exu Omulu, Exu Ganga</td>
+      </tr>
+      <tr>
+        <td>Prosperidade</td>
+        <td><strong>Para:</strong> Atrair dinheiro, clientes, sucesso nos negócios<br>
+        <strong>Usam:</strong> Energias de abundância e movimento financeiro<br>
+        <strong>Entidades:</strong> Exu Gira Mundo, Cigano Zartur</td>
+      </tr>
+      <tr>
+        <td>Amor e União</td>
+        <td><strong>Para:</strong> Harmonizar casais, atrair amor, resolver conflitos afetivos<br>
+        <strong>Usam:</strong> Energias de atração e ligação<br>
+        <strong>Entidades:</strong> Pomba Gira da Praia, Cigana Celoy</td>
+      </tr>
+      <tr>
+        <td>Saúde</td>
+        <td><strong>Para:</strong> Auxiliar em tratamentos, fortalecer o corpo, afastar doenças<br>
+        <strong>Usam:</strong> Energias de cura e vitalidade<br>
+        <strong>Entidades:</strong> Exu Veludo, Exu Ganga</td>
+      </tr>
+    </table>
+
+    <h3 class="section-title">Elementos Comuns nos Axés</h3>
+    <ul class="bullet-list single">
+      <li><strong>Padê:</strong> Farofa ritual feita com farinha de mandioca, dendê e bebidas — é a "comida de Exu"</li>
+      <li><strong>Velas:</strong> Representam luz, foco de intenção; diferentes cores para diferentes propósitos</li>
+      <li><strong>Bebidas:</strong> Cachaça, champanhe, cerveja — cada entidade tem sua preferência</li>
+      <li><strong>Charutos/cigarros:</strong> Elemento de ar, fumegam levando os pedidos ao plano espiritual</li>
+      <li><strong>Ervas:</strong> Cada erva tem propriedades específicas</li>
+      <li><strong>Cores:</strong> Guias (colares), velas e panos nas cores das entidades</li>
+    </ul>
+
+    <div class="warning-box">
+      <p class="box-title">■■ Responsabilidade</p>
+      <p>Nem todo axé deve ser feito por qualquer pessoa. Alguns trabalhos requerem
+      conhecimento específico e proteção adequada. Sempre consulte o pai ou mãe de santo
+      antes de realizar qualquer trabalho espiritual por conta própria.</p>
+    </div>
+
+    <div class="page-number">— 31 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO XX                                                    -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo XX <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Ética e Responsabilidade Espiritual</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      Com grande poder vem grande responsabilidade. Na Kabala de Mussifin, trabalhamos com
+      forças poderosas da natureza, e é essencial compreender as leis espirituais que regem
+      nossos atos.
+    </p>
+
+    <h3 class="section-title">As Duas Leis Fundamentais</h3>
+
+    <div class="two-col">
+      <div class="info-box">
+        <p class="box-title">Lei do Retorno (Karma)</p>
+        <ul class="bullet-list single">
+          <li>O que você envia ao universo retorna para você</li>
+          <li>Se você pede para prejudicar alguém, essa energia retornará</li>
+          <li>Não é punição, é equilíbrio natural</li>
+          <li>"O que você planta, você colhe"</li>
+        </ul>
+      </div>
+      <div class="info-box">
+        <p class="box-title">Lei do Livre Arbítrio</p>
+        <ul class="bullet-list single">
+          <li>Cada pessoa tem o direito de fazer suas próprias escolhas</li>
+          <li>Trabalhos que violam a vontade alheia têm consequências sérias</li>
+          <li>As entidades respeitam essa lei e cobram por sua violação</li>
+          <li>Você é responsável pelas suas escolhas e pedidos</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="section-title">A Consciência de Quem Pede</h3>
+    <p>As entidades da Kabala de Mussifin não julgam os pedidos como "bons" ou "maus" — elas trabalham com as forças naturais. <strong>MAS:</strong></p>
+    <ul class="bullet-list single">
+      <li><strong>Você é responsável:</strong> Cabe a quem solicita o trabalho avaliar se está sendo ético</li>
+      <li><strong>Pense bem antes:</strong> O que você está pedindo está alinhado com seus valores?</li>
+      <li><strong>Considere as consequências:</strong> Como você se sentirá depois?</li>
+      <li><strong>Busque o equilíbrio:</strong> Há outra forma de resolver isso sem prejudicar ninguém?</li>
+    </ul>
+
+    <div class="info-box">
+      <p class="box-title">Exemplo Prático</p>
+      <p>Em vez de pedir para "separar um casal", pode-se pedir para "abrir os caminhos
+      para o verdadeiro amor chegar até mim". O resultado pode ser o mesmo, mas a intenção
+      e karma são completamente diferentes.</p>
+    </div>
+
+    <h3 class="section-title">Quando é Aceitável Pedir Trabalhos "Fortes"?</h3>
+    <p>Há situações em que trabalhos mais contundentes são justificáveis:</p>
+    <ul class="bullet-list single">
+      <li>Legítima defesa espiritual (quando você está sendo atacado)</li>
+      <li>Quebrar feitiços que foram feitos contra você</li>
+      <li>Afastar pessoas que estão causando mal real e comprovado</li>
+      <li>Justiça quando as vias normais falharam</li>
+    </ul>
+    <p>Mesmo assim, o pai de santo geralmente aconselha primeiro:</p>
+    <ol class="steps-list">
+      <li>Limpeza espiritual</li>
+      <li>Proteção</li>
+      <li>Abertura de caminhos</li>
+      <li>Somente em último caso, trabalhos de confronto direto</li>
+    </ol>
+
+    <div class="warning-box">
+      <p class="box-title">■ Lembre-se</p>
+      <p>Trabalhar com Exu e Pomba Gira não é brincar com fogo — é aprender a usar o
+      fogo com sabedoria. O poder está disponível, mas a responsabilidade é eternamente sua.</p>
+    </div>
+
+    <div class="page-number">— 32 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CAPÍTULO XXI                                                   -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Capítulo XXI <span class="stars">✦</span></p>
+    <h1 class="chapter-title">Como Ser um Bom Filho/Filha de Santo</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      Pertencer a uma casa de religião é um privilégio e uma responsabilidade. Aqui estão
+      orientações práticas para você cultivar sua jornada espiritual com dignidade e respeito.
+    </p>
+
+    <h3 class="section-title">Atitudes Esperadas</h3>
+
+    <div class="two-col">
+      <div class="step-box no-break">
+        <div class="step-number">1. Respeito e Hierarquia</div>
+        <ul class="bullet-list single" style="margin:6px 0 0;">
+          <li>Respeite seu pai/mãe de santo e os mais velhos</li>
+          <li>Hierarquia não é soberba, é ordem e experiência</li>
+          <li>Questionar com respeito é diferente de desacatar</li>
+        </ul>
+      </div>
+      <div class="step-box no-break">
+        <div class="step-number">2. Presença e Participação</div>
+        <ul class="bullet-list single" style="margin:6px 0 0;">
+          <li>Compareça aos rituais e giras regularmente</li>
+          <li>Sua presença fortalece a corrente espiritual</li>
+          <li>Avise com antecedência se não puder comparecer</li>
+        </ul>
+      </div>
+      <div class="step-box no-break">
+        <div class="step-number">3. Estudo Contínuo</div>
+        <ul class="bullet-list single" style="margin:6px 0 0;">
+          <li>Busque conhecimento sobre a tradição</li>
+          <li>Faça perguntas quando tiver dúvidas</li>
+          <li>Aprenda com os mais velhos da casa</li>
+        </ul>
+      </div>
+      <div class="step-box no-break">
+        <div class="step-number">4. Contribuição</div>
+        <ul class="bullet-list single" style="margin:6px 0 0;">
+          <li>Ajude nas tarefas da casa conforme suas possibilidades</li>
+          <li>Contribua financeiramente quando puder</li>
+          <li>Sua energia e boa vontade já são valiosas</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step-box no-break">
+      <div class="step-number">5. Cuidado com Suas Obrigações</div>
+      <ul class="bullet-list" style="margin:6px 0 0;">
+        <li>Mantenha seus assentamentos limpos e cuidados</li>
+        <li>Cumpra os preceitos que foram orientados</li>
+        <li>Participe do movimento semanal</li>
+      </ul>
+    </div>
+
+    <h3 class="section-title">O Que Evitar</h3>
+    <ul class="bullet-list single">
+      <li>Fofoca e intriga dentro da casa</li>
+      <li>Comparar sua casa com outras casas de forma negativa</li>
+      <li>Menosprezar rituais ou chamá-los de "besteira"</li>
+      <li>Faltar sistematicamente sem justificativa</li>
+      <li>Usar a espiritualidade apenas quando precisa de algo</li>
+      <li>Desrespeitar os irmãos de santo</li>
+      <li>Compartilhar fundamentos sagrados com pessoas de fora sem autorização</li>
+    </ul>
+
+    <h3 class="section-title">Sinais de Crescimento Espiritual</h3>
+    <ul class="bullet-list">
+      <li>Você se sente mais protegido</li>
+      <li>Sua vida começa a fluir melhor</li>
+      <li>Você desenvolve mais intuição</li>
+      <li>Seus relacionamentos melhoram</li>
+      <li>Você se sente mais forte e confiante</li>
+      <li>Você sente alegria em participar dos rituais</li>
+    </ul>
+
+    <div class="info-box">
+      <p class="box-title">Espiritualidade é Caminhada, não Corrida</p>
+      <p>Cada um tem seu tempo e seu ritmo. Não compare sua evolução com a de outros.
+      Celebre suas pequenas conquistas espirituais. A verdadeira prova de uma entidade
+      bem assentada é: <strong>saúde, proteção e prosperidade</strong>.</p>
+    </div>
+
+    <div class="page-number">— 33 —</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CONCLUSÃO FINAL                                                -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+
+    <p class="chapter-label"><span class="stars">✦</span> Conclusão <span class="stars">✦</span></p>
+    <h1 class="chapter-title">O Caminho Continua</h1>
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p>
+      Chegamos ao fim deste guia, mas sua jornada na Kabala de Mussifin está apenas
+      começando — ou continuando, com uma compreensão mais profunda.
+    </p>
+
+    <p>Esperamos que agora você entenda melhor:</p>
+    <ul class="bullet-list single">
+      <li>Por que cada ritual é realizado da forma que é</li>
+      <li>O trabalho imenso e dedicado do pai/mãe de santo</li>
+      <li>A importância de sua presença e participação</li>
+      <li>A responsabilidade que vem com o conhecimento espiritual</li>
+      <li>O significado sagrado por trás de cada oferenda, cada gesto, cada palavra</li>
+    </ul>
+
+    <h3 class="section-title">Palavras Finais</h3>
+    <p>
+      A Kabala de Mussifin não é apenas um conjunto de rituais — é uma cosmovisão, uma
+      forma de estar no mundo, uma conexão profunda com as forças da natureza e com nossos
+      ancestrais.
+    </p>
+    <p>
+      Cada vez que você participa de uma gira, cada vez que despacha a rua, cada vez que
+      acende uma vela para sua entidade, você está mantendo viva uma tradição ancestral que
+      resistiu a séculos de opressão e preconceito.
+    </p>
+
+    <p class="quote" style="margin:24px 0 8px;">Você é parte de algo maior.</p>
+    <p class="quote" style="margin:0 0 8px;">Você é guardião dessa sabedoria.</p>
+    <p class="quote" style="margin:0 0 24px;">Você é elo dessa corrente.</p>
+
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <div style="text-align:center;margin:20px 0 10px;line-height:2.2;">
+      <p style="color:var(--text-light);font-style:italic;">Que Exu abra seus caminhos.</p>
+      <p style="color:var(--text-light);font-style:italic;">Que Pomba Gira traga movimento e prosperidade.</p>
+      <p style="color:var(--text-light);font-style:italic;">Que os Caboclos te protejam.</p>
+      <p style="color:var(--text-light);font-style:italic;">Que os Ancestrais te guiem.</p>
+    </div>
+
+    <p style="text-align:center;font-family:'Cinzel',serif;font-weight:700;font-size:1.1rem;color:var(--red);margin:20px 0;">Laroyê, Exu! Môjubá!</p>
+
+    <div class="divider"><div class="divider-diamond"></div></div>
+
+    <p style="text-align:center;font-style:italic;color:var(--text-light);font-size:0.9rem;margin-top:20px;">
+      Este guia foi preparado com amor e respeito por nossa tradição, para que cada membro
+      da comunidade possa caminhar com conhecimento, dignidade e fé.
+    </p>
+
+    <h3 class="section-title">Sua Jornada a Partir de Agora</h3>
+    <p>
+      Conhecimento sem prática é estéril. O verdadeiro aprendizado da Kabala de Mussifin
+      acontece no terreiro, nos rituais, nas giras, nas conversas com o pai ou mãe de santo.
+      Use este guia como mapa — mas saiba que o território só se revela quando você caminha.
+    </p>
+
+    <div class="info-box">
+      <p class="box-title">Três Pilares para o Filho de Santo</p>
+      <p><strong>1. Fé</strong> — Acredite nas entidades, na tradição e no seu próprio
+      caminho espiritual.</p>
+      <p style="margin-top:6px;"><strong>2. Disciplina</strong> — Cumpra suas obrigações,
+      participe do movimento e respeite os fundamentos da casa.</p>
+      <p style="margin-top:6px;"><strong>3. Humildade</strong> — Reconheça que sempre há
+      mais para aprender. O caminho espiritual não tem fim.</p>
+    </div>
+
+    <div class="page-number">— 34 —</div>
+  </div>
+</div>
+
+<!-- Barra de progresso de leitura -->
+<script>
+  (function() {
+    var bar = document.getElementById('progress-bar');
+    if (!bar) return;
+
+    function atualizar() {
+      var spread = document.getElementById('book-spread');
+      var el = spread || document.documentElement;
+      var total = el.scrollHeight - el.clientHeight;
+      var pct = total > 0 ? (el.scrollTop / total) * 100 : 0;
+      bar.style.width = pct.toFixed(1) + '%';
+    }
+
+    var spread = document.getElementById('book-spread');
+    if (spread) spread.addEventListener('scroll', atualizar, { passive: true });
+    window.addEventListener('scroll', atualizar, { passive: true });
+    atualizar();
+  })();
+</script>
+
+</body>
+</html>
