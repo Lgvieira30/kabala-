@@ -19,6 +19,8 @@ function doGet(e) {
     resultado = validarChave(chave);
   } else if (acao === 'marcar_acesso') {
     resultado = marcarAcesso(chave);
+  } else if (acao === 'criar') {
+    resultado = criarChave(chave, e.parameter.whatsapp, e.parameter.nome);
   } else {
     resultado = { erro: 'acao_invalida' };
   }
@@ -42,6 +44,13 @@ function validarChave(chave) {
   }
 
   return { valida: false };
+}
+
+function criarChave(chave, whatsapp, nome) {
+  if (!chave) return { ok: false, erro: 'chave_vazia' };
+  var aba = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_ABA);
+  aba.appendRow([chave, whatsapp || '', nome || '', new Date(), '', false]);
+  return { ok: true, chave: chave };
 }
 
 function marcarAcesso(chave) {

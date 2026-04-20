@@ -1,0 +1,197 @@
+{
+  "name": "Kabala — Fluxo de Leads",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kabala-lead",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "node-001",
+      "name": "Receber Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "kabala-lead-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst whatsapp = (body.whatsapp || '').replace(/\\D/g, '');\nconst nome = body.nome || '';\n\nconst uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {\n  const r = Math.random() * 16 | 0;\n  return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);\n});\n\nreturn [{ json: { uuid, whatsapp, nome } }];"
+      },
+      "id": "node-002",
+      "name": "Gerar UUID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://script.google.com/macros/s/AKfycbx301nq2vdR5iVNLu5xsNqJ0WzKq9T4ElDJz0jxO298qo7SjguC2fed4VkaXPKPZ2yTyA/exec?acao=criar&k={{ $json.uuid }}&whatsapp={{ $json.whatsapp }}&nome={{ encodeURIComponent($json.nome) }}",
+        "options": {}
+      },
+      "id": "node-003",
+      "name": "Registrar na Planilha",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/SUA_INSTANCIA/token/SEU_TOKEN/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "client-token", "value": "SEU_CLIENT_TOKEN" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"phone\": \"{{ $('Gerar UUID').item.json.whatsapp }}\",\n  \"message\": \"Olá{{ $('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '' }}! 🙏\\n\\nSeu acesso ao *Guia Completo da Kabala de Mussifin* foi liberado.\\n\\nSeu código de acesso:\\n*{{ $('Gerar UUID').item.json.uuid }}*\\n\\nAcesse agora: https://kabaladexu.netlify.app\\n\\nLaroyê, Exu! 🔱\"\n}",
+        "options": {}
+      },
+      "id": "node-004",
+      "name": "Enviar Chave WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 3,
+        "unit": "days"
+      },
+      "id": "node-005",
+      "name": "Aguardar 3 dias",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1120, 300],
+      "webhookId": "wait-d3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/SUA_INSTANCIA/token/SEU_TOKEN/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "client-token", "value": "SEU_CLIENT_TOKEN" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"phone\": \"{{ $('Gerar UUID').item.json.whatsapp }}\",\n  \"message\": \"Oi{{ $('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '' }}! 🙏\\n\\nJá tiveste tempo de mergulhar na Kabala de Mussifin?\\n\\nSe o guia te serviu, uma retribuição voluntária de *R$ 20* ajuda a manter esse trabalho vivo.\\n\\nChave Pix:\\n*b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nQuem não puder, leva de axé — sem cobrança. 🔱\\n\\nLaroyê!\"\n}",
+        "options": {}
+      },
+      "id": "node-006",
+      "name": "Follow-up D+3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 4,
+        "unit": "days"
+      },
+      "id": "node-007",
+      "name": "Aguardar +4 dias",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1560, 300],
+      "webhookId": "wait-d7"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/SUA_INSTANCIA/token/SEU_TOKEN/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "client-token", "value": "SEU_CLIENT_TOKEN" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"phone\": \"{{ $('Gerar UUID').item.json.whatsapp }}\",\n  \"message\": \"Bom dia{{ $('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '' }}! ✨\\n\\nUma semana com o guia da Kabala de Mussifin — espero que tenha valido cada página.\\n\\nSe quiser retribuir de coração:\\nPix: *b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nSe não puder, tudo bem — o axé já foi dado. 🙏\\n\\nLaroyê, Exu!\"\n}",
+        "options": {}
+      },
+      "id": "node-008",
+      "name": "Follow-up D+7",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 7,
+        "unit": "days"
+      },
+      "id": "node-009",
+      "name": "Aguardar +7 dias",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2000, 300],
+      "webhookId": "wait-d14"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/SUA_INSTANCIA/token/SEU_TOKEN/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "client-token", "value": "SEU_CLIENT_TOKEN" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"phone\": \"{{ $('Gerar UUID').item.json.whatsapp }}\",\n  \"message\": \"Olá{{ $('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '' }}! 🔱\\n\\nDuas semanas desde que você recebeu o guia da Kabala de Mussifin.\\n\\nEssa é a última mensagem — depois disso, silêncio. 🙏\\n\\nSe o guia te serviu e quiser fechar esse ciclo com axé:\\nPix: *b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nSe não puder, não tem problema. Que Exu abra seus caminhos.\\n\\nLaroyê!\"\n}",
+        "options": {}
+      },
+      "id": "node-010",
+      "name": "Follow-up D+14",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2220, 300]
+    }
+  ],
+  "connections": {
+    "Receber Lead": {
+      "main": [[{ "node": "Gerar UUID", "type": "main", "index": 0 }]]
+    },
+    "Gerar UUID": {
+      "main": [[{ "node": "Registrar na Planilha", "type": "main", "index": 0 }]]
+    },
+    "Registrar na Planilha": {
+      "main": [[{ "node": "Enviar Chave WhatsApp", "type": "main", "index": 0 }]]
+    },
+    "Enviar Chave WhatsApp": {
+      "main": [[{ "node": "Aguardar 3 dias", "type": "main", "index": 0 }]]
+    },
+    "Aguardar 3 dias": {
+      "main": [[{ "node": "Follow-up D+3", "type": "main", "index": 0 }]]
+    },
+    "Follow-up D+3": {
+      "main": [[{ "node": "Aguardar +4 dias", "type": "main", "index": 0 }]]
+    },
+    "Aguardar +4 dias": {
+      "main": [[{ "node": "Follow-up D+7", "type": "main", "index": 0 }]]
+    },
+    "Follow-up D+7": {
+      "main": [[{ "node": "Aguardar +7 dias", "type": "main", "index": 0 }]]
+    },
+    "Aguardar +7 dias": {
+      "main": [[{ "node": "Follow-up D+14", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
