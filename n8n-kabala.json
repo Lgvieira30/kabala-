@@ -28,7 +28,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://script.google.com/macros/s/AKfycbx301nq2vdR5iVNLu5xsNqJ0WzKq9T4ElDJz0jxO298qo7SjguC2fed4VkaXPKPZ2yTyA/exec?acao=criar&k={{ $json.uuid }}&whatsapp={{ $json.whatsapp }}&nome={{ encodeURIComponent($json.nome) }}",
+        "url": "=https://script.google.com/macros/s/AKfycbzNf9crdxPcPnGU0FKMmsbQsYgYuNYTzewlmVF48TYeqQikAU0mxPu6-GKt-r_ZNNIGJA/exec?acao=criar&k={{ $json.uuid }}&whatsapp={{ $json.whatsapp }}&nome={{ encodeURIComponent($json.nome) }}",
         "options": {}
       },
       "id": "node-003",
