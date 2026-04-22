@@ -148,6 +148,12 @@
         var btn   = document.getElementById('gate-btn');
         var erro  = document.getElementById('gate-error');
 
+        // Auto-preenche o código se vier na URL (?codigo=KABA-XXXX)
+        var codigoUrl = params.get('codigo');
+        if (codigoUrl) {
+          input.value = codigoUrl;
+        }
+
         input.focus();
 
         function setLoading(sim) {
