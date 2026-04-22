@@ -1,5 +1,5 @@
 {
-  "name": "Kabala — Fluxo de Leads",
+  "name": "Kabala — Funil WhatsApp",
   "nodes": [
     {
       "parameters": {
@@ -17,10 +17,10 @@
     },
     {
       "parameters": {
-        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst whatsapp = (body.whatsapp || '').replace(/\\D/g, '');\nconst nome = body.nome || '';\n\nconst uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {\n  const r = Math.random() * 16 | 0;\n  return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);\n});\n\nreturn [{ json: { uuid, whatsapp, nome } }];"
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst whatsapp = (body.whatsapp || '').replace(/\\D/g, '');\nconst nome = (body.nome || '').split(' ')[0];\n\nconst chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';\nlet code = 'KABA-';\nfor (let i = 0; i < 4; i++) {\n  code += chars[Math.floor(Math.random() * chars.length)];\n}\n\nreturn [{ json: { codigo: code, whatsapp, nome } }];"
       },
       "id": "node-002",
-      "name": "Gerar UUID",
+      "name": "Gerar Código",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [460, 300]
@@ -28,7 +28,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://script.google.com/macros/s/AKfycbzvhmsz26l_YOQborHAhwfZN-9c1EfAGf_relG3ORwnkUC2LOhdEh4_4nPF7KRULT1jvA/exec?acao=criar&k={{ $json.uuid }}&whatsapp={{ $json.whatsapp }}&nome={{ encodeURIComponent($json.nome) }}",
+        "url": "=https://script.google.com/macros/s/AKfycbzvhmsz26l_YOQborHAhwfZN-9c1EfAGf_relG3ORwnkUC2LOhdEh4_4nPF7KRULT1jvA/exec?acao=criar&k={{ $json.codigo.toLowerCase() }}&whatsapp={{ $json.whatsapp }}&nome={{ $json.nome }}",
         "options": {}
       },
       "id": "node-003",
@@ -53,18 +53,18 @@
           "parameters": [
             {
               "name": "phone",
-              "value": "={{ $('Gerar UUID').item.json.whatsapp }}"
+              "value": "={{ $('Gerar Código').item.json.whatsapp }}"
             },
             {
               "name": "message",
-              "value": "={{ 'Olá' + ($('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '') + '! 🙏\\n\\nSeu acesso ao *Guia Completo da Kabala de Mussifin* foi liberado.\\n\\nSeu código de acesso:\\n*' + $('Gerar UUID').item.json.uuid + '*\\n\\nAcesse agora: https://kabaladexu.netlify.app\\n\\nLaroyê, Exu! 🔱' }}"
+              "value": "={{ 'Axé, ' + ($('Gerar Código').item.json.nome || 'irmão') + '! 🔱\\n\\nRecebi seu sinal. Deixa eu te mandar algo que pode mudar a forma como você entende a Kabala de Mussifin.' }}"
             }
           ]
         },
         "options": {}
       },
       "id": "node-004",
-      "name": "Enviar Chave WhatsApp",
+      "name": "Msg 1 — Abertura",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [900, 300]
@@ -72,15 +72,15 @@
     {
       "parameters": {
         "resume": "timeInterval",
-        "amount": 3,
-        "unit": "days"
+        "amount": 30,
+        "unit": "seconds"
       },
       "id": "node-005",
-      "name": "Aguardar 3 dias",
+      "name": "Aguardar 30s",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [1120, 300],
-      "webhookId": "wait-d3"
+      "position": [1100, 300],
+      "webhookId": "wait-30s"
     },
     {
       "parameters": {
@@ -98,34 +98,34 @@
           "parameters": [
             {
               "name": "phone",
-              "value": "={{ $('Gerar UUID').item.json.whatsapp }}"
+              "value": "={{ $('Gerar Código').item.json.whatsapp }}"
             },
             {
               "name": "message",
-              "value": "={{ 'Oi' + ($('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '') + '! 🙏\\n\\nJá tiveste tempo de mergulhar na Kabala de Mussifin?\\n\\nSe o guia te serviu, uma retribuição voluntária de *R$ 20* ajuda a manter esse trabalho vivo.\\n\\nChave Pix:\\n*b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nQuem não puder, leva de axé — sem cobrança. 🔱\\n\\nLaroyê!' }}"
+              "value": "Olha o que você vai encontrar no *Guia Completo da Kabala de Mussifin*:\n\n📖 16 capítulos sobre feituras, fundamentos e rituais\n🔱 Como as entidades trabalham e o que pedem\n🕯️ O significado de cada gira e oferenda\n⚡ Exu, Pomba Gira, Caboclos, Pretos Velhos — as diferenças\n🌿 Glossário completo da tradição\n\nÉ o guia que eu gostaria de ter tido quando comecei no caminho."
             }
           ]
         },
         "options": {}
       },
       "id": "node-006",
-      "name": "Follow-up D+3",
+      "name": "Msg 2 — Benefícios",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [1340, 300]
+      "position": [1300, 300]
     },
     {
       "parameters": {
         "resume": "timeInterval",
-        "amount": 4,
-        "unit": "days"
+        "amount": 60,
+        "unit": "seconds"
       },
       "id": "node-007",
-      "name": "Aguardar +4 dias",
+      "name": "Aguardar 1min",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [1560, 300],
-      "webhookId": "wait-d7"
+      "position": [1500, 300],
+      "webhookId": "wait-1min"
     },
     {
       "parameters": {
@@ -143,34 +143,34 @@
           "parameters": [
             {
               "name": "phone",
-              "value": "={{ $('Gerar UUID').item.json.whatsapp }}"
+              "value": "={{ $('Gerar Código').item.json.whatsapp }}"
             },
             {
               "name": "message",
-              "value": "={{ 'Bom dia' + ($('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '') + '! ✨\\n\\nUma semana com o guia da Kabala de Mussifin — espero que tenha valido cada página.\\n\\nSe quiser retribuir de coração:\\nPix: *b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nSe não puder, tudo bem — o axé já foi dado. 🙏\\n\\nLaroyê, Exu!' }}"
+              "value": "Vou liberar seu acesso agora. 🙏\n\nO livro é gratuito — axé não se vende, se retribui."
             }
           ]
         },
         "options": {}
       },
       "id": "node-008",
-      "name": "Follow-up D+7",
+      "name": "Msg 3 — Gancho",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [1780, 300]
+      "position": [1700, 300]
     },
     {
       "parameters": {
         "resume": "timeInterval",
-        "amount": 7,
-        "unit": "days"
+        "amount": 30,
+        "unit": "seconds"
       },
       "id": "node-009",
-      "name": "Aguardar +7 dias",
+      "name": "Aguardar 30s (2)",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [2000, 300],
-      "webhookId": "wait-d14"
+      "position": [1900, 300],
+      "webhookId": "wait-30s-2"
     },
     {
       "parameters": {
@@ -188,50 +188,152 @@
           "parameters": [
             {
               "name": "phone",
-              "value": "={{ $('Gerar UUID').item.json.whatsapp }}"
+              "value": "={{ $('Gerar Código').item.json.whatsapp }}"
             },
             {
               "name": "message",
-              "value": "={{ 'Olá' + ($('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '') + '! 🔱\\n\\nDuas semanas desde que você recebeu o guia da Kabala de Mussifin.\\n\\nEssa é a última mensagem — depois disso, silêncio. 🙏\\n\\nSe o guia te serviu e quiser fechar esse ciclo com axé:\\nPix: *b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nSe não puder, não tem problema. Que Exu abra seus caminhos.\\n\\nLaroyê!' }}"
+              "value": "={{ '✅ Seu código de acesso:\\n\\n*' + $('Gerar Código').item.json.codigo + '*\\n\\n👆 Copia esse código\\n\\nDepois acessa:\\n👉 https://kabaladexu.netlify.app\\n\\nCola o código e clica em Entrar. Laroyê! 🔱' }}"
             }
           ]
         },
         "options": {}
       },
       "id": "node-010",
-      "name": "Follow-up D+14",
+      "name": "Msg 4 — Código + Link",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
-      "position": [2220, 300]
+      "position": [2100, 300]
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 30,
+        "unit": "minutes"
+      },
+      "id": "node-011",
+      "name": "Aguardar 30min",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2300, 300],
+      "webhookId": "wait-30min"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3F20A0CCB12931FC5CB6EE073B4CAC93/token/5615B118817534E0E1248BB7/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "client-token", "value": "F262c53739dd04cca80dae8059ddc3f42S" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Gerar Código').item.json.whatsapp }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ 'E aí, ' + ($('Gerar Código').item.json.nome || 'irmão') + '? Conseguiu acessar o livro? 📖\\n\\nSe tiver alguma dificuldade me fala aqui que eu te ajudo.' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-012",
+      "name": "Msg 5 — Check-in",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2500, 300]
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 3,
+        "unit": "hours"
+      },
+      "id": "node-013",
+      "name": "Aguardar 3h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2700, 300],
+      "webhookId": "wait-3h"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3F20A0CCB12931FC5CB6EE073B4CAC93/token/5615B118817534E0E1248BB7/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "client-token", "value": "F262c53739dd04cca80dae8059ddc3f42S" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Gerar Código').item.json.whatsapp }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ ($('Gerar Código').item.json.nome || 'Irmão') + ', se o livro te serviu de alguma forma, existe uma forma bonita de fechar esse ciclo. 🙏\\n\\nUma retribuição voluntária de *R$ 20* ajuda a manter esse trabalho vivo e levar o conhecimento adiante.\\n\\nChave Pix:\\n*b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nQuem não puder, leva de axé — sem cobrança, sem dívida.\\n\\nLaroyê, Exu! 🔱' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-014",
+      "name": "Msg 6 — Retribuição",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2900, 300]
     }
   ],
   "connections": {
     "Receber Lead": {
-      "main": [[{ "node": "Gerar UUID", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Gerar Código", "type": "main", "index": 0 }]]
     },
-    "Gerar UUID": {
+    "Gerar Código": {
       "main": [[{ "node": "Registrar na Planilha", "type": "main", "index": 0 }]]
     },
     "Registrar na Planilha": {
-      "main": [[{ "node": "Enviar Chave WhatsApp", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Msg 1 — Abertura", "type": "main", "index": 0 }]]
     },
-    "Enviar Chave WhatsApp": {
-      "main": [[{ "node": "Aguardar 3 dias", "type": "main", "index": 0 }]]
+    "Msg 1 — Abertura": {
+      "main": [[{ "node": "Aguardar 30s", "type": "main", "index": 0 }]]
     },
-    "Aguardar 3 dias": {
-      "main": [[{ "node": "Follow-up D+3", "type": "main", "index": 0 }]]
+    "Aguardar 30s": {
+      "main": [[{ "node": "Msg 2 — Benefícios", "type": "main", "index": 0 }]]
     },
-    "Follow-up D+3": {
-      "main": [[{ "node": "Aguardar +4 dias", "type": "main", "index": 0 }]]
+    "Msg 2 — Benefícios": {
+      "main": [[{ "node": "Aguardar 1min", "type": "main", "index": 0 }]]
     },
-    "Aguardar +4 dias": {
-      "main": [[{ "node": "Follow-up D+7", "type": "main", "index": 0 }]]
+    "Aguardar 1min": {
+      "main": [[{ "node": "Msg 3 — Gancho", "type": "main", "index": 0 }]]
     },
-    "Follow-up D+7": {
-      "main": [[{ "node": "Aguardar +7 dias", "type": "main", "index": 0 }]]
+    "Msg 3 — Gancho": {
+      "main": [[{ "node": "Aguardar 30s (2)", "type": "main", "index": 0 }]]
     },
-    "Aguardar +7 dias": {
-      "main": [[{ "node": "Follow-up D+14", "type": "main", "index": 0 }]]
+    "Aguardar 30s (2)": {
+      "main": [[{ "node": "Msg 4 — Código + Link", "type": "main", "index": 0 }]]
+    },
+    "Msg 4 — Código + Link": {
+      "main": [[{ "node": "Aguardar 30min", "type": "main", "index": 0 }]]
+    },
+    "Aguardar 30min": {
+      "main": [[{ "node": "Msg 5 — Check-in", "type": "main", "index": 0 }]]
+    },
+    "Msg 5 — Check-in": {
+      "main": [[{ "node": "Aguardar 3h", "type": "main", "index": 0 }]]
+    },
+    "Aguardar 3h": {
+      "main": [[{ "node": "Msg 6 — Retribuição", "type": "main", "index": 0 }]]
     }
   },
   "active": false,
