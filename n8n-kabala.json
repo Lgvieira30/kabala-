@@ -40,11 +40,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.z-api.io/instances/SUA_INSTANCIA/token/SEU_TOKEN/send-text",
+        "url": "https://api.z-api.io/instances/3F20A0CCB12931FC5CB6EE073B4CAC93/token/5615B118817534E0E1248BB7/send-text",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "client-token", "value": "SEU_CLIENT_TOKEN" }
+            { "name": "client-token", "value": "F262c53739dd04cca80dae8059ddc3f42S" }
           ]
         },
         "sendBody": true,
@@ -74,11 +74,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.z-api.io/instances/SUA_INSTANCIA/token/SEU_TOKEN/send-text",
+        "url": "https://api.z-api.io/instances/3F20A0CCB12931FC5CB6EE073B4CAC93/token/5615B118817534E0E1248BB7/send-text",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "client-token", "value": "SEU_CLIENT_TOKEN" }
+            { "name": "client-token", "value": "F262c53739dd04cca80dae8059ddc3f42S" }
           ]
         },
         "sendBody": true,
@@ -108,11 +108,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.z-api.io/instances/SUA_INSTANCIA/token/SEU_TOKEN/send-text",
+        "url": "https://api.z-api.io/instances/3F20A0CCB12931FC5CB6EE073B4CAC93/token/5615B118817534E0E1248BB7/send-text",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "client-token", "value": "SEU_CLIENT_TOKEN" }
+            { "name": "client-token", "value": "F262c53739dd04cca80dae8059ddc3f42S" }
           ]
         },
         "sendBody": true,
@@ -142,11 +142,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.z-api.io/instances/SUA_INSTANCIA/token/SEU_TOKEN/send-text",
+        "url": "https://api.z-api.io/instances/3F20A0CCB12931FC5CB6EE073B4CAC93/token/5615B118817534E0E1248BB7/send-text",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "client-token", "value": "SEU_CLIENT_TOKEN" }
+            { "name": "client-token", "value": "F262c53739dd04cca80dae8059ddc3f42S" }
           ]
         },
         "sendBody": true,
