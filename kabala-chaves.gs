@@ -8,6 +8,7 @@ var NOME_ABA = 'Chaves';
 
 // Colunas da aba "Chaves":
 // A = chave | B = whatsapp | C = nome | D = criada_em | E = acessada_em | F = pagou
+// G = scroll_max (%) | H = tempo_ativo_seg | I = chegou_final | J = chegou_final_em | K = ultimo_ping
 
 function doGet(e) {
   var acao  = e.parameter.acao;
@@ -21,6 +22,13 @@ function doGet(e) {
     resultado = marcarAcesso(chave);
   } else if (acao === 'criar') {
     resultado = criarChave(chave, e.parameter.whatsapp, e.parameter.nome);
+  } else if (acao === 'tracking') {
+    resultado = registrarTracking(
+      chave,
+      parseFloat(e.parameter.scroll_max || 0),
+      parseInt(e.parameter.tempo_ativo || 0, 10),
+      e.parameter.chegou_final === 'true'
+    );
   } else {
     resultado = { erro: 'acao_invalida' };
   }
@@ -69,3 +77,41 @@ function marcarAcesso(chave) {
 
   return { ok: false };
 }
+
+function registrarTracking(chave, scrollMax, tempoAtivo, chegouFinal) {
+  if (!chave) return { ok: false };
+
+  var aba   = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(NOME_ABA);
+  var dados = aba.getDataRange().getValues();
+
+  for (var i = 1; i < dados.length; i++) {
+    var chaveCadastrada = (dados[i][0] || '').toString().trim().toLowerCase();
+    if (chaveCadastrada === chave) {
+      var linha = i + 1;
+      var agora = new Date();
+
+      // Atualiza scroll_max só se maior que o valor atual
+      var scrollAtual = parseFloat(dados[i][6] || 0);
+      if (scrollMax > scrollAtual) {
+        aba.getRange(linha, 7).setValue(scrollMax); // G
+      }
+
+      // Atualiza tempo_ativo sempre (acumulativo vindo do cliente)
+      aba.getRange(linha, 8).setValue(tempoAtivo); // H
+
+      // chegou_final: uma vez TRUE, nunca volta pra FALSE
+      var jaFinal = dados[i][8] === true || dados[i][8] === 'TRUE';
+      if (!jaFinal && chegouFinal) {
+        aba.getRange(linha, 9).setValue(true);  // I
+        aba.getRange(linha, 10).setValue(agora); // J = chegou_final_em
+      }
+
+      aba.getRange(linha, 11).setValue(agora); // K = ultimo_ping
+
+      return { ok: true };
+    }
+  }
+
+  return { ok: false, erro: 'chave_nao_encontrada' };
+}
+ 

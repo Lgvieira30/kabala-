@@ -118,7 +118,7 @@
   <script>
     (function() {
       // URL do Apps Script publicado — substituir após publicar no Google
-      var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzvhmsz26l_YOQborHAhwfZN-9c1EfAGf_relG3ORwnkUC2LOhdEh4_4nPF7KRULT1jvA/exec';
+      var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx1gOKu3VhKIzHgrehDPZzdrve-gWWeJCtONcjE1Mi7kYzONX_sK__YASgwHjTlNBSn/exec';
 
       // Já validou antes → esconde gate e vai direto pro livro
       if (localStorage.getItem('kabala_ok') === '1') {
@@ -2795,6 +2795,114 @@
     window.addEventListener('scroll', atualizar, { passive: true });
     atualizar();
   })();
+</script>
+
+<!-- Tracking de leitura -->
+<script>
+(function() {
+  var APPS_URL = 'https://script.google.com/macros/s/AKfycbx1gOKu3VhKIzHgrehDPZzdrve-gWWeJCtONcjE1Mi7kYzONX_sK__YASgwHjTlNBSn/exec';
+  var IDLE_LIMIT = 60;   // segundos sem atividade = pausa
+  var PING_INTERVAL = 90; // segundos entre pings
+
+  var chave = null;
+  var scrollMax = 0;
+  var tempoAtivo = 0;   // segundos acumulados de leitura real
+  var chegouFinal = false;
+  var finalJaEnviado = false;
+
+  // controle de tempo ativo
+  var tabVisivel = !document.hidden;
+  var ultimaAtividade = Date.now();
+  var ultimoTick = Date.now();
+
+  // --- lê a chave (pode já estar no localStorage se voltou à página) ---
+  function getChave() {
+    if (chave) return chave;
+    chave = localStorage.getItem('kabala_chave') || null;
+    return chave;
+  }
+
+  // --- envia dados pro Apps Script ---
+  function enviar(useBeacon) {
+    var k = getChave();
+    if (!k) return;
+    var url = APPS_URL + '?acao=tracking'
+      + '&k=' + encodeURIComponent(k)
+      + '&scroll_max=' + scrollMax.toFixed(1)
+      + '&tempo_ativo=' + Math.round(tempoAtivo)
+      + '&chegou_final=' + chegouFinal;
+    if (useBeacon && navigator.sendBeacon) {
+      navigator.sendBeacon(url);
+    } else {
+      fetch(url).catch(function() {});
+    }
+  }
+
+  // --- tick a cada segundo: acumula tempo ativo ---
+  setInterval(function() {
+    var agora = Date.now();
+    var delta = (agora - ultimoTick) / 1000;
+    ultimoTick = agora;
+
+    var ocioso = (agora - ultimaAtividade) / 1000 > IDLE_LIMIT;
+    if (tabVisivel && !ocioso) {
+      tempoAtivo += delta;
+    }
+  }, 1000);
+
+  // --- ping periódico ---
+  setInterval(function() {
+    enviar(false);
+  }, PING_INTERVAL * 1000);
+
+  // --- visibilidade da aba ---
+  document.addEventListener('visibilitychange', function() {
+    tabVisivel = !document.hidden;
+    ultimoTick = Date.now();
+    if (document.hidden) enviar(false);
+  });
+
+  // --- beacon ao fechar/sair ---
+  window.addEventListener('pagehide', function() { enviar(true); });
+  window.addEventListener('beforeunload', function() { enviar(true); });
+
+  // --- atividade do usuário ---
+  ['scroll', 'mousemove', 'touchmove', 'keydown', 'click'].forEach(function(ev) {
+    document.addEventListener(ev, function() {
+      ultimaAtividade = Date.now();
+    }, { passive: true });
+  });
+
+  // --- scroll máximo + detecção de final ---
+  function calcScroll() {
+    var spread = document.getElementById('book-spread');
+    var el = spread || document.documentElement;
+    var total = el.scrollHeight - el.clientHeight;
+    var pct = total > 0 ? (el.scrollTop / total) * 100 : 0;
+    if (pct > scrollMax) scrollMax = pct;
+
+    if (!chegouFinal && pct >= 95) {
+      chegouFinal = true;
+      if (!finalJaEnviado) {
+        finalJaEnviado = true;
+        enviar(false);
+      }
+    }
+  }
+
+  var spread = document.getElementById('book-spread');
+  if (spread) spread.addEventListener('scroll', calcScroll, { passive: true });
+  window.addEventListener('scroll', calcScroll, { passive: true });
+
+  // --- tenta pegar a chave depois que o gate libera ---
+  // o gate chama localStorage.setItem('kabala_chave', chave), então
+  // qualquer evento de storage (outra aba) ou polling simples resolve
+  if (!getChave()) {
+    var poll = setInterval(function() {
+      if (getChave()) clearInterval(poll);
+    }, 2000);
+  }
+})();
 </script>
 
 </body>

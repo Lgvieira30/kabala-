@@ -28,7 +28,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://script.google.com/macros/s/AKfycbzvhmsz26l_YOQborHAhwfZN-9c1EfAGf_relG3ORwnkUC2LOhdEh4_4nPF7KRULT1jvA/exec?acao=criar&k={{ $json.codigo.toLowerCase() }}&whatsapp={{ $json.whatsapp }}&nome={{ $json.nome }}",
+        "url": "=https://script.google.com/macros/s/AKfycbx1gOKu3VhKIzHgrehDPZzdrve-gWWeJCtONcjE1Mi7kYzONX_sK__YASgwHjTlNBSn/exec?acao=criar&k={{ $json.codigo.toLowerCase() }}&whatsapp={{ $json.whatsapp }}&nome={{ $json.nome }}",
         "options": {}
       },
       "id": "node-003",
@@ -72,15 +72,15 @@
     {
       "parameters": {
         "resume": "timeInterval",
-        "amount": 300,
+        "amount": 2400,
         "unit": "seconds"
       },
       "id": "node-005",
-      "name": "Aguardar 5min",
+      "name": "Aguardar 40min",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [1100, 300],
-      "webhookId": "wait-5min"
+      "webhookId": "wait-40min"
     },
     {
       "parameters": {
@@ -102,62 +102,17 @@
             },
             {
               "name": "message",
-              "value": "Esse conteúdo eu não costumo vender da forma comum.\n\nPrefiro liberar primeiro…\ne deixar a própria pessoa sentir se aquilo realmente tem valor.\n\nSe fizer sentido pra você, você vai saber."
+              "value": "Quando você entra com calma, percebe que não é conteúdo comum.\n\nSe fizer sentido pra você, pode retribuir por aqui:\n\n💠 PIX\nb24f3338-b5c9-4e58-875a-1ab0aadcc04b\n\nA maioria contribui com R$20.\n\nFica à sua consciência. 🔱"
             }
           ]
         },
         "options": {}
       },
       "id": "node-006",
-      "name": "Msg 2 — Posicionamento",
+      "name": "Msg 2 — Retribuição",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [1300, 300]
-    },
-    {
-      "parameters": {
-        "resume": "timeInterval",
-        "amount": 3600,
-        "unit": "seconds"
-      },
-      "id": "node-007",
-      "name": "Aguardar 1h",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [1500, 300],
-      "webhookId": "wait-1h"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.z-api.io/instances/3F20A0CCB12931FC5CB6EE073B4CAC93/token/5615B118817534E0E1248BB7/send-text",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "client-token", "value": "F262c53739dd04cca80dae8059ddc3f42S" }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "keypair",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "phone",
-              "value": "={{ $('Gerar Código').item.json.whatsapp }}"
-            },
-            {
-              "name": "message",
-              "value": "Se você sentir que te ajudou de verdade, dá pra retribuir por aqui:\n\n💠 PIX\nb24f3338-b5c9-4e58-875a-1ab0aadcc04b\n\nA maioria contribui com R$20.\n\nMas fica à sua consciência 🙏\n\nLaroyê. 🔱"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "node-008",
-      "name": "Msg 3 — Retribuição",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.1,
-      "position": [1700, 300]
     }
   ],
   "connections": {
@@ -171,16 +126,10 @@
       "main": [[{ "node": "Msg 1 — Acesso", "type": "main", "index": 0 }]]
     },
     "Msg 1 — Acesso": {
-      "main": [[{ "node": "Aguardar 5min", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Aguardar 40min", "type": "main", "index": 0 }]]
     },
-    "Aguardar 5min": {
-      "main": [[{ "node": "Msg 2 — Posicionamento", "type": "main", "index": 0 }]]
-    },
-    "Msg 2 — Posicionamento": {
-      "main": [[{ "node": "Aguardar 1h", "type": "main", "index": 0 }]]
-    },
-    "Aguardar 1h": {
-      "main": [[{ "node": "Msg 3 — Retribuição", "type": "main", "index": 0 }]]
+    "Aguardar 40min": {
+      "main": [[{ "node": "Msg 2 — Retribuição", "type": "main", "index": 0 }]]
     }
   },
   "active": false,
