@@ -57,14 +57,14 @@
             },
             {
               "name": "message",
-              "value": "={{ 'Axé, ' + ($('Gerar Código').item.json.nome || 'irmão') + '! 🔱\\n\\nRecebi seu sinal. Deixa eu te mandar algo que pode mudar a forma como você entende a Kabala de Mussifin.' }}"
+              "value": "={{ 'Axé, ' + $('Gerar Código').item.json.nome + '. 🔱\\n\\nVi que você chamou pra saber mais sobre a Kabala de Mussifin.\\n\\nEntão já te mando direto o material completo 👇\\n\\nTem fundamentos, rituais e explicações que normalmente não são passados de forma aberta.\\n\\n👉 Acessa por aqui:\\nhttps://kabaladexu.netlify.app?codigo=' + $('Gerar Código').item.json.codigo + '\\n\\nSe não preencher automático, usa esse código:\\n' + $('Gerar Código').item.json.codigo + '\\n\\nEntra com calma.' }}"
             }
           ]
         },
         "options": {}
       },
       "id": "node-004",
-      "name": "Msg 1 — Abertura",
+      "name": "Msg 1 — Acesso",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [900, 300]
@@ -72,15 +72,15 @@
     {
       "parameters": {
         "resume": "timeInterval",
-        "amount": 30,
+        "amount": 300,
         "unit": "seconds"
       },
       "id": "node-005",
-      "name": "Aguardar 30s",
+      "name": "Aguardar 5min",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [1100, 300],
-      "webhookId": "wait-30s"
+      "webhookId": "wait-5min"
     },
     {
       "parameters": {
@@ -102,14 +102,14 @@
             },
             {
               "name": "message",
-              "value": "Olha o que você vai encontrar no *Guia Completo da Kabala de Mussifin*:\n\n📖 16 capítulos sobre feituras, fundamentos e rituais\n🔱 Como as entidades trabalham e o que pedem\n🕯️ O significado de cada gira e oferenda\n⚡ Exu, Pomba Gira, Caboclos, Pretos Velhos — as diferenças\n🌿 Glossário completo da tradição\n\nÉ o guia que eu gostaria de ter tido quando comecei no caminho."
+              "value": "Esse conteúdo eu não costumo vender da forma comum.\n\nPrefiro liberar primeiro…\ne deixar a própria pessoa sentir se aquilo realmente tem valor.\n\nSe fizer sentido pra você, você vai saber."
             }
           ]
         },
         "options": {}
       },
       "id": "node-006",
-      "name": "Msg 2 — Benefícios",
+      "name": "Msg 2 — Posicionamento",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [1300, 300]
@@ -117,15 +117,15 @@
     {
       "parameters": {
         "resume": "timeInterval",
-        "amount": 60,
+        "amount": 3600,
         "unit": "seconds"
       },
       "id": "node-007",
-      "name": "Aguardar 1min",
+      "name": "Aguardar 1h",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [1500, 300],
-      "webhookId": "wait-1min"
+      "webhookId": "wait-1h"
     },
     {
       "parameters": {
@@ -147,152 +147,17 @@
             },
             {
               "name": "message",
-              "value": "Vou liberar seu acesso agora. 🙏\n\nO livro é gratuito — axé não se vende, se retribui."
+              "value": "Se você sentir que te ajudou de verdade, dá pra retribuir por aqui:\n\n💠 PIX\nb24f3338-b5c9-4e58-875a-1ab0aadcc04b\n\nA maioria contribui com R$20.\n\nMas fica à sua consciência 🙏\n\nLaroyê. 🔱"
             }
           ]
         },
         "options": {}
       },
       "id": "node-008",
-      "name": "Msg 3 — Gancho",
+      "name": "Msg 3 — Retribuição",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [1700, 300]
-    },
-    {
-      "parameters": {
-        "resume": "timeInterval",
-        "amount": 30,
-        "unit": "seconds"
-      },
-      "id": "node-009",
-      "name": "Aguardar 30s (2)",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [1900, 300],
-      "webhookId": "wait-30s-2"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.z-api.io/instances/3F20A0CCB12931FC5CB6EE073B4CAC93/token/5615B118817534E0E1248BB7/send-text",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "client-token", "value": "F262c53739dd04cca80dae8059ddc3f42S" }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "keypair",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "phone",
-              "value": "={{ $('Gerar Código').item.json.whatsapp }}"
-            },
-            {
-              "name": "message",
-              "value": "={{ '✅ Seu código de acesso:\\n\\n*' + $('Gerar Código').item.json.codigo + '*\\n\\n👆 Copia esse código\\n\\nDepois acessa:\\n👉 https://kabaladexu.netlify.app\\n\\nCola o código e clica em Entrar. Laroyê! 🔱' }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "node-010",
-      "name": "Msg 4 — Código + Link",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.1,
-      "position": [2100, 300]
-    },
-    {
-      "parameters": {
-        "resume": "timeInterval",
-        "amount": 30,
-        "unit": "minutes"
-      },
-      "id": "node-011",
-      "name": "Aguardar 30min",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [2300, 300],
-      "webhookId": "wait-30min"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.z-api.io/instances/3F20A0CCB12931FC5CB6EE073B4CAC93/token/5615B118817534E0E1248BB7/send-text",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "client-token", "value": "F262c53739dd04cca80dae8059ddc3f42S" }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "keypair",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "phone",
-              "value": "={{ $('Gerar Código').item.json.whatsapp }}"
-            },
-            {
-              "name": "message",
-              "value": "={{ 'E aí, ' + ($('Gerar Código').item.json.nome || 'irmão') + '? Conseguiu acessar o livro? 📖\\n\\nSe tiver alguma dificuldade me fala aqui que eu te ajudo.' }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "node-012",
-      "name": "Msg 5 — Check-in",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.1,
-      "position": [2500, 300]
-    },
-    {
-      "parameters": {
-        "resume": "timeInterval",
-        "amount": 3,
-        "unit": "hours"
-      },
-      "id": "node-013",
-      "name": "Aguardar 3h",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [2700, 300],
-      "webhookId": "wait-3h"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.z-api.io/instances/3F20A0CCB12931FC5CB6EE073B4CAC93/token/5615B118817534E0E1248BB7/send-text",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "client-token", "value": "F262c53739dd04cca80dae8059ddc3f42S" }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "keypair",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "phone",
-              "value": "={{ $('Gerar Código').item.json.whatsapp }}"
-            },
-            {
-              "name": "message",
-              "value": "={{ ($('Gerar Código').item.json.nome || 'Irmão') + ', se o livro te serviu de alguma forma, existe uma forma bonita de fechar esse ciclo. 🙏\\n\\nUma retribuição voluntária de *R$ 20* ajuda a manter esse trabalho vivo e levar o conhecimento adiante.\\n\\nChave Pix:\\n*b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nQuem não puder, leva de axé — sem cobrança, sem dívida.\\n\\nLaroyê, Exu! 🔱' }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "node-014",
-      "name": "Msg 6 — Retribuição",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.1,
-      "position": [2900, 300]
     }
   ],
   "connections": {
@@ -303,37 +168,19 @@
       "main": [[{ "node": "Registrar na Planilha", "type": "main", "index": 0 }]]
     },
     "Registrar na Planilha": {
-      "main": [[{ "node": "Msg 1 — Abertura", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Msg 1 — Acesso", "type": "main", "index": 0 }]]
     },
-    "Msg 1 — Abertura": {
-      "main": [[{ "node": "Aguardar 30s", "type": "main", "index": 0 }]]
+    "Msg 1 — Acesso": {
+      "main": [[{ "node": "Aguardar 5min", "type": "main", "index": 0 }]]
     },
-    "Aguardar 30s": {
-      "main": [[{ "node": "Msg 2 — Benefícios", "type": "main", "index": 0 }]]
+    "Aguardar 5min": {
+      "main": [[{ "node": "Msg 2 — Posicionamento", "type": "main", "index": 0 }]]
     },
-    "Msg 2 — Benefícios": {
-      "main": [[{ "node": "Aguardar 1min", "type": "main", "index": 0 }]]
+    "Msg 2 — Posicionamento": {
+      "main": [[{ "node": "Aguardar 1h", "type": "main", "index": 0 }]]
     },
-    "Aguardar 1min": {
-      "main": [[{ "node": "Msg 3 — Gancho", "type": "main", "index": 0 }]]
-    },
-    "Msg 3 — Gancho": {
-      "main": [[{ "node": "Aguardar 30s (2)", "type": "main", "index": 0 }]]
-    },
-    "Aguardar 30s (2)": {
-      "main": [[{ "node": "Msg 4 — Código + Link", "type": "main", "index": 0 }]]
-    },
-    "Msg 4 — Código + Link": {
-      "main": [[{ "node": "Aguardar 30min", "type": "main", "index": 0 }]]
-    },
-    "Aguardar 30min": {
-      "main": [[{ "node": "Msg 5 — Check-in", "type": "main", "index": 0 }]]
-    },
-    "Msg 5 — Check-in": {
-      "main": [[{ "node": "Aguardar 3h", "type": "main", "index": 0 }]]
-    },
-    "Aguardar 3h": {
-      "main": [[{ "node": "Msg 6 — Retribuição", "type": "main", "index": 0 }]]
+    "Aguardar 1h": {
+      "main": [[{ "node": "Msg 3 — Retribuição", "type": "main", "index": 0 }]]
     }
   },
   "active": false,
