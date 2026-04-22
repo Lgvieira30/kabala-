@@ -48,8 +48,19 @@
           ]
         },
         "sendBody": true,
-        "contentType": "json",
-        "body": "={\n  \"phone\": \"{{ $('Gerar UUID').item.json.whatsapp }}\",\n  \"message\": \"Olá{{ $('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '' }}! 🙏\\n\\nSeu acesso ao *Guia Completo da Kabala de Mussifin* foi liberado.\\n\\nSeu código de acesso:\\n*{{ $('Gerar UUID').item.json.uuid }}*\\n\\nAcesse agora: https://kabaladexu.netlify.app\\n\\nLaroyê, Exu! 🔱\"\n}",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Gerar UUID').item.json.whatsapp }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ 'Olá' + ($('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '') + '! 🙏\\n\\nSeu acesso ao *Guia Completo da Kabala de Mussifin* foi liberado.\\n\\nSeu código de acesso:\\n*' + $('Gerar UUID').item.json.uuid + '*\\n\\nAcesse agora: https://kabaladexu.netlify.app\\n\\nLaroyê, Exu! 🔱' }}"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "node-004",
@@ -82,8 +93,19 @@
           ]
         },
         "sendBody": true,
-        "contentType": "json",
-        "body": "={\n  \"phone\": \"{{ $('Gerar UUID').item.json.whatsapp }}\",\n  \"message\": \"Oi{{ $('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '' }}! 🙏\\n\\nJá tiveste tempo de mergulhar na Kabala de Mussifin?\\n\\nSe o guia te serviu, uma retribuição voluntária de *R$ 20* ajuda a manter esse trabalho vivo.\\n\\nChave Pix:\\n*b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nQuem não puder, leva de axé — sem cobrança. 🔱\\n\\nLaroyê!\"\n}",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Gerar UUID').item.json.whatsapp }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ 'Oi' + ($('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '') + '! 🙏\\n\\nJá tiveste tempo de mergulhar na Kabala de Mussifin?\\n\\nSe o guia te serviu, uma retribuição voluntária de *R$ 20* ajuda a manter esse trabalho vivo.\\n\\nChave Pix:\\n*b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nQuem não puder, leva de axé — sem cobrança. 🔱\\n\\nLaroyê!' }}"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "node-006",
@@ -116,8 +138,19 @@
           ]
         },
         "sendBody": true,
-        "contentType": "json",
-        "body": "={\n  \"phone\": \"{{ $('Gerar UUID').item.json.whatsapp }}\",\n  \"message\": \"Bom dia{{ $('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '' }}! ✨\\n\\nUma semana com o guia da Kabala de Mussifin — espero que tenha valido cada página.\\n\\nSe quiser retribuir de coração:\\nPix: *b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nSe não puder, tudo bem — o axé já foi dado. 🙏\\n\\nLaroyê, Exu!\"\n}",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Gerar UUID').item.json.whatsapp }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ 'Bom dia' + ($('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '') + '! ✨\\n\\nUma semana com o guia da Kabala de Mussifin — espero que tenha valido cada página.\\n\\nSe quiser retribuir de coração:\\nPix: *b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nSe não puder, tudo bem — o axé já foi dado. 🙏\\n\\nLaroyê, Exu!' }}"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "node-008",
@@ -150,8 +183,19 @@
           ]
         },
         "sendBody": true,
-        "contentType": "json",
-        "body": "={\n  \"phone\": \"{{ $('Gerar UUID').item.json.whatsapp }}\",\n  \"message\": \"Olá{{ $('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '' }}! 🔱\\n\\nDuas semanas desde que você recebeu o guia da Kabala de Mussifin.\\n\\nEssa é a última mensagem — depois disso, silêncio. 🙏\\n\\nSe o guia te serviu e quiser fechar esse ciclo com axé:\\nPix: *b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nSe não puder, não tem problema. Que Exu abra seus caminhos.\\n\\nLaroyê!\"\n}",
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Gerar UUID').item.json.whatsapp }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ 'Olá' + ($('Gerar UUID').item.json.nome ? ', ' + $('Gerar UUID').item.json.nome : '') + '! 🔱\\n\\nDuas semanas desde que você recebeu o guia da Kabala de Mussifin.\\n\\nEssa é a última mensagem — depois disso, silêncio. 🙏\\n\\nSe o guia te serviu e quiser fechar esse ciclo com axé:\\nPix: *b24f3338-b5c9-4e58-875a-1ab0aadcc04b*\\n\\nSe não puder, não tem problema. Que Exu abra seus caminhos.\\n\\nLaroyê!' }}"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "node-010",
