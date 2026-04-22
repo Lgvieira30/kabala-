@@ -1,0 +1,73 @@
+{
+  "name": "Kabala — Resposta Lead",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kabala-resposta",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "resp-001",
+      "name": "Receber Resposta Z-API",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "kabala-resposta-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\n\n// Ignora mensagens enviadas por nós\nif (body.fromMe === true) return [];\n\nconst phone = (body.phone || '').replace(/[^0-9]/g, '');\nconst texto = ((body.text && body.text.message) || body.message || '').toLowerCase().trim();\n\n// Palavras que indicam resposta positiva\nconst positivo = /\\b(sim|gostei|amei|adorei|show|[oó]timo|massa|top|perfeito|bo[am]|legal|curti|gostou|incrí?vel|muito bom|demais|excelente|sensacional|maravilhoso|incrivel)\\b/i;\nconst negativo = /\\b(n[aã]o|nao|nem|nope)\\b/i;\n\nconst ehPositivo = positivo.test(texto) && !negativo.test(texto);\n\nif (!phone || !ehPositivo) return [];\n\nreturn [{ json: { phone, texto } }];"
+      },
+      "id": "resp-002",
+      "name": "Verificar Resposta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z-api.io/instances/3F20A0CCB12931FC5CB6EE073B4CAC93/token/5615B118817534E0E1248BB7/send-text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "client-token", "value": "F262c53739dd04cca80dae8059ddc3f42S" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "message",
+              "value": "Ficamos felizes! 🙏\n\nSabemos que axé não se cobra...\n\nMas se esse livro fez sentido pra você, seria muito legal uma contribuição pra gente continuar com essa causa.\n\n💠 PIX\nb24f3338-b5c9-4e58-875a-1ab0aadcc04b\n\nA maioria contribui com R$20.\n\nFica à sua consciência. Laroyê! 🔱"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "resp-003",
+      "name": "Msg — Contribuição PIX",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "Receber Resposta Z-API": {
+      "main": [[{ "node": "Verificar Resposta", "type": "main", "index": 0 }]]
+    },
+    "Verificar Resposta": {
+      "main": [[{ "node": "Msg — Contribuição PIX", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -72,15 +72,15 @@
     {
       "parameters": {
         "resume": "timeInterval",
-        "amount": 2400,
+        "amount": 1200,
         "unit": "seconds"
       },
       "id": "node-005",
-      "name": "Aguardar 40min",
+      "name": "Aguardar 20min",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [1100, 300],
-      "webhookId": "wait-40min"
+      "webhookId": "wait-20min"
     },
     {
       "parameters": {
@@ -102,14 +102,14 @@
             },
             {
               "name": "message",
-              "value": "Quando você entra com calma, percebe que não é conteúdo comum.\n\nSe fizer sentido pra você, pode retribuir por aqui:\n\n💠 PIX\nb24f3338-b5c9-4e58-875a-1ab0aadcc04b\n\nA maioria contribui com R$20.\n\nFica à sua consciência. 🔱"
+              "value": "Eae, chegou a dar uma olhada? Gostou? 🔱"
             }
           ]
         },
         "options": {}
       },
       "id": "node-006",
-      "name": "Msg 2 — Retribuição",
+      "name": "Msg 2 — Gostou?",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.1,
       "position": [1300, 300]
@@ -126,10 +126,10 @@
       "main": [[{ "node": "Msg 1 — Acesso", "type": "main", "index": 0 }]]
     },
     "Msg 1 — Acesso": {
-      "main": [[{ "node": "Aguardar 40min", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Aguardar 20min", "type": "main", "index": 0 }]]
     },
-    "Aguardar 40min": {
-      "main": [[{ "node": "Msg 2 — Retribuição", "type": "main", "index": 0 }]]
+    "Aguardar 20min": {
+      "main": [[{ "node": "Msg 2 — Gostou?", "type": "main", "index": 0 }]]
     }
   },
   "active": false,
