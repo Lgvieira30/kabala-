@@ -7,200 +7,16 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-  <style>
-    #gate {
-      position: fixed;
-      inset: 0;
-      background: #0d0a06;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-    #gate-box {
-      text-align: center;
-      padding: 44px 44px 40px;
-      border: 1.5px solid #b8962e;
-      max-width: 440px;
-      width: 90%;
-      position: relative;
-      background: #100c05;
-    }
-    #gate-box::before {
-      content: '';
-      position: absolute;
-      inset: 7px;
-      border: 0.5px solid #6b4f1a;
-      pointer-events: none;
-    }
-    .gc {
-      position: absolute;
-      width: 8px; height: 8px;
-      background: #b8962e;
-      border-radius: 50%;
-    }
-    .gc.tl { top: -4px; left: -4px; }
-    .gc.tr { top: -4px; right: -4px; }
-    .gc.bl { bottom: -4px; left: -4px; }
-    .gc.br { bottom: -4px; right: -4px; }
-    #gate-line {
-      width: 70%;
-      height: 1px;
-      background: linear-gradient(to right, transparent, #b8962e, transparent);
-      margin: 16px auto;
-    }
-    #gate-title {
-      font-family: 'Cinzel', serif;
-      color: #f0e8d5;
-      font-size: 1.5rem;
-      font-weight: 900;
-      letter-spacing: 0.2em;
-      margin: 0;
-    }
-    #gate-sub {
-      font-family: 'Cormorant Garamond', serif;
-      color: #b8962e;
-      font-size: 0.95rem;
-      letter-spacing: 0.1em;
-      font-style: italic;
-      margin: 0;
-    }
-    #gate-label {
-      font-family: 'Cinzel', serif;
-      color: #6b4f1a;
-      font-size: 0.72rem;
-      letter-spacing: 0.3em;
-      margin-bottom: 20px;
-    }
-    #gate-input {
-      width: 100%;
-      background: #0d0a06;
-      border: 1px solid #4a3a20;
-      border-bottom-color: #b8962e;
-      color: #f0e8d5;
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.05rem;
-      padding: 13px 18px;
-      text-align: center;
-      letter-spacing: 0.1em;
-      outline: none;
-      margin-bottom: 14px;
-      box-sizing: border-box;
-      transition: border-color 0.2s;
-    }
-    #gate-input:focus { border-color: #b8962e; }
-    #gate-input::placeholder { color: #3a2e18; }
-    #gate-btn {
-      width: 100%;
-      background: #7a1515;
-      color: #f0e8d5;
-      border: none;
-      font-family: 'Cinzel', serif;
-      font-size: 0.85rem;
-      font-weight: 700;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      padding: 15px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    #gate-btn:hover { background: #9e2222; }
-    #gate-error {
-      font-family: 'Cormorant Garamond', serif;
-      color: #9e2222;
-      font-style: italic;
-      font-size: 0.9rem;
-      margin-top: 12px;
-      letter-spacing: 0.05em;
-      min-height: 20px;
-    }
-  </style>
   <script>
+    // Lê o código da URL e registra acesso na planilha
     (function() {
-      // URL do Apps Script publicado — substituir após publicar no Google
       var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwkzzK0CFvX0nG2xrlRVtAAu3UEM9hcWpcK-AU6L7NTmXjwKk4BJ78bUfWMWqah2M2H/exec';
-
-      // Já validou antes → esconde gate e vai direto pro livro
-      if (localStorage.getItem('kabala_ok') === '1') {
-        document.addEventListener('DOMContentLoaded', function() {
-          var g = document.getElementById('gate');
-          if (g) g.style.display = 'none';
-        });
-        return;
+      var params = new URLSearchParams(window.location.search);
+      var codigo = params.get('codigo') || '';
+      if (codigo) {
+        localStorage.setItem('kabala_chave', codigo);
+        fetch(APPS_SCRIPT_URL + '?acao=marcar_acesso&k=' + encodeURIComponent(codigo)).catch(function(){});
       }
-
-      document.addEventListener('DOMContentLoaded', function() {
-        // Sales page: visível só com ?vender=1 na URL
-        var params    = new URLSearchParams(window.location.search);
-        var salesPage = document.getElementById('sales-page');
-        if (salesPage) {
-          salesPage.style.display = params.get('vender') === '1' ? 'block' : 'none';
-        }
-
-        // Se é a página de vendas, esconde o gate
-        var gate = document.getElementById('gate');
-        if (params.get('vender') === '1') {
-          if (gate) gate.style.display = 'none';
-          return;
-        }
-
-        var input = document.getElementById('gate-input');
-        var btn   = document.getElementById('gate-btn');
-        var erro  = document.getElementById('gate-error');
-
-        // Auto-preenche o código se vier na URL (?codigo=KABA-XXXX)
-        var codigoUrl = params.get('codigo');
-        if (codigoUrl) {
-          input.value = codigoUrl;
-        }
-
-        input.focus();
-
-        function setLoading(sim) {
-          btn.disabled    = sim;
-          btn.textContent = sim ? 'Validando...' : 'Entrar';
-          input.disabled  = sim;
-        }
-
-        function liberar(chave) {
-          localStorage.setItem('kabala_ok', '1');
-          localStorage.setItem('kabala_chave', chave);
-          gate.style.transition = 'opacity 0.4s';
-          gate.style.opacity    = '0';
-          setTimeout(function() { gate.style.display = 'none'; }, 420);
-          // registra acesso sem bloquear a UI
-          fetch(APPS_SCRIPT_URL + '?acao=marcar_acesso&k=' + encodeURIComponent(chave))
-            .catch(function() {});
-        }
-
-        function tentar() {
-          var chave = input.value.trim();
-          if (!chave) return;
-
-          setLoading(true);
-          erro.textContent = '';
-
-          fetch(APPS_SCRIPT_URL + '?acao=validar&k=' + encodeURIComponent(chave))
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-              if (data.valida) {
-                liberar(chave);
-              } else {
-                erro.textContent = 'Código inválido ou expirado.';
-                input.value = '';
-                input.focus();
-                setLoading(false);
-              }
-            })
-            .catch(function() {
-              erro.textContent = 'Não conseguimos validar agora. Tente novamente.';
-              setLoading(false);
-            });
-        }
-
-        btn.addEventListener('click', tentar);
-        input.addEventListener('keydown', function(e) { if (e.key === 'Enter') tentar(); });
-      });
     })();
   </script>
 </head>
@@ -208,7 +24,7 @@
 
 <div id="progress-bar"></div>
 
-<div id="gate">
+<div id="gate" style="display:none">
   <div id="gate-box">
     <span class="gc tl"></span><span class="gc tr"></span>
     <span class="gc bl"></span><span class="gc br"></span>
@@ -2894,13 +2710,10 @@
   if (spread) spread.addEventListener('scroll', calcScroll, { passive: true });
   window.addEventListener('scroll', calcScroll, { passive: true });
 
-  // --- tenta pegar a chave depois que o gate libera ---
-  // o gate chama localStorage.setItem('kabala_chave', chave), então
-  // qualquer evento de storage (outra aba) ou polling simples resolve
+  // lê o código da URL como fallback
   if (!getChave()) {
-    var poll = setInterval(function() {
-      if (getChave()) clearInterval(poll);
-    }, 2000);
+    var c = new URLSearchParams(window.location.search).get('codigo');
+    if (c) { chave = c; localStorage.setItem('kabala_chave', c); }
   }
 })();
 </script>
