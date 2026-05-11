@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kabala de Exu — Os Caminhos Sagrados de Mussifin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ===== RESET ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:      #080503;
+      --dark:       #110a05;
+      --dark2:      #1a0f07;
+      --red:        #8b1515;
+      --red2:       #a01c1c;
+      --gold:       #c9a84c;
+      --gold2:      #e0c16a;
+      --gold3:      #f5e0a0;
+      --cream:      #f7f0e3;
+      --text:       #e8dcc8;
+      --text2:      #b8a890;
+      --white:      #fff8f0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      background: var(--black);
+      color: var(--text);
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    /* ===== UTILITY ===== */
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+    .container-wide { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    .gold { color: var(--gold); }
+    .red  { color: var(--red2); }
+
+    /* ===== DIVIDER ===== */
+    .divider {
+      display: flex; align-items: center; gap: 14px;
+      margin: 0 auto; max-width: 500px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+    }
+    .divider-diamond {
+      width: 10px; height: 10px;
+      background: var(--gold); transform: rotate(45deg); flex-shrink: 0;
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+      background: rgba(8,5,3,0.92);
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+      backdrop-filter: blur(10px);
+      padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem; font-weight: 700;
+      color: var(--gold); letter-spacing: 0.15em;
+    }
+    .nav-cta {
+      background: var(--red); color: #fff;
+      font-family: 'Cinzel', serif; font-size: 0.72rem;
+      font-weight: 600; letter-spacing: 0.12em;
+      padding: 9px 20px; border: none; cursor: pointer;
+      text-decoration: none; text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--red2); }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(139,21,21,0.25) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.08) 0%, transparent 50%),
+        var(--dark);
+      display: flex; align-items: center; justify-content: center;
+      padding: 100px 24px 60px;
+      position: relative; overflow: hidden;
+    }
+
+    /* Fundo decorativo */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 80px, rgba(201,168,76,0.03) 80px, rgba(201,168,76,0.03) 81px),
+        repeating-linear-gradient(90deg, transparent, transparent 80px, rgba(201,168,76,0.03) 80px, rgba(201,168,76,0.03) 81px);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+      position: relative; z-index: 1;
+      max-width: 960px; width: 100%;
+    }
+
+    /* Mockup do livro */
+    .book-mockup {
+      display: flex; justify-content: center; align-items: center;
+    }
+
+    .book {
+      width: 240px;
+      background: #0d0a06;
+      border: 1.5px solid var(--gold);
+      padding: 24px 20px;
+      position: relative;
+      box-shadow:
+        8px 12px 40px rgba(0,0,0,0.8),
+        0 0 60px rgba(139,21,21,0.2),
+        inset 0 0 40px rgba(139,21,21,0.05);
+      transform: perspective(800px) rotateY(-8deg);
+      transition: transform 0.4s ease;
+    }
+    .book:hover { transform: perspective(800px) rotateY(-2deg) scale(1.02); }
+
+    .book::before {
+      content: '';
+      position: absolute; inset: 5px;
+      border: 0.5px solid rgba(201,168,76,0.3);
+      pointer-events: none;
+    }
+
+    /* Spine */
+    .book::after {
+      content: '';
+      position: absolute; left: -14px; top: 0; bottom: 0; width: 14px;
+      background: linear-gradient(to right, #1a0a06, #2a1208);
+      border-left: 1px solid rgba(201,168,76,0.4);
+      transform-origin: right;
+    }
+
+    .book-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem; font-weight: 900;
+      color: var(--red2); letter-spacing: 0.1em;
+      text-align: center; line-height: 1;
+    }
+    .book-title2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--white); letter-spacing: 0.1em;
+      text-align: center; margin-top: 2px;
+    }
+
+    .book-bar {
+      background: var(--red); color: #fff;
+      font-family: 'Cinzel', serif; font-size: 0.5rem;
+      letter-spacing: 0.15em; font-weight: 600;
+      padding: 6px 8px; text-align: center;
+      margin: 14px -20px; text-transform: uppercase;
+    }
+
+    .book-svg {
+      width: 100%; margin: 14px 0;
+    }
+
+    .book-line {
+      width: 80%; height: 1px;
+      background: var(--gold); margin: 12px auto;
+    }
+
+    .book-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; color: var(--gold);
+      font-size: 0.65rem; text-align: center;
+      letter-spacing: 0.05em; line-height: 1.5;
+    }
+
+    .badge {
+      position: absolute; top: -14px; right: -14px;
+      width: 70px; height: 70px;
+      background: var(--red);
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(139,21,21,0.5);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    .badge span:first-child {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem; color: var(--gold3);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .badge span:last-child {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem; font-weight: 900;
+      color: #fff; letter-spacing: 0.05em;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 4px 20px rgba(139,21,21,0.5); }
+      50% { box-shadow: 0 4px 32px rgba(139,21,21,0.8), 0 0 0 6px rgba(139,21,21,0.15); }
+    }
+
+    /* Hero text */
+    .hero-text { position: relative; }
+
+    .hero-eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem; letter-spacing: 0.3em;
+      color: var(--gold); text-transform: uppercase;
+      margin-bottom: 16px; display: block;
+    }
+
+    .hero-title {
+      font-family: 'Cinzel', serif;
+      font-size: 2.8rem; font-weight: 900;
+      line-height: 1.1; color: var(--white);
+      margin-bottom: 8px;
+    }
+    .hero-title .accent { color: var(--red2); }
+
+    .hero-sub {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem; font-weight: 600;
+      color: var(--gold); letter-spacing: 0.08em;
+      margin-bottom: 24px;
+    }
+
+    .hero-desc {
+      font-size: 1.1rem; color: var(--text2);
+      line-height: 1.85; margin-bottom: 36px;
+      font-style: italic;
+    }
+
+    .hero-pills {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 36px;
+    }
+    .pill {
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.3);
+      color: var(--gold3);
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem; letter-spacing: 0.1em;
+      padding: 6px 14px; border-radius: 2px;
+      text-transform: uppercase;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--red), #6b1010);
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 18px 40px;
+      border: 1px solid rgba(201,168,76,0.3);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative; overflow: hidden;
+      box-shadow: 0 4px 24px rgba(139,21,21,0.4);
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(255,255,255,0.08));
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(139,21,21,0.6); }
+    .btn-primary:hover::before { opacity: 1; }
+
+    .btn-secondary {
+      display: inline-block;
+      background: transparent;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 16px 30px;
+      border: 1px solid var(--gold);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-left: 14px;
+    }
+    .btn-secondary:hover { background: rgba(201,168,76,0.1); }
+
+    .hero-trust {
+      margin-top: 24px;
+      display: flex; align-items: center; gap: 16px;
+      font-size: 0.85rem; color: var(--text2);
+    }
+    .hero-trust span { display: flex; align-items: center; gap: 6px; }
+    .hero-trust .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
+
+    /* ===== SECTION BASE ===== */
+    section { padding: 90px 0; }
+
+    .section-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem; letter-spacing: 0.35em;
+      color: var(--gold); text-transform: uppercase;
+      text-align: center; margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem; font-weight: 700;
+      color: var(--white); text-align: center;
+      line-height: 1.2; margin-bottom: 16px;
+    }
+
+    .section-sub {
+      font-size: 1.05rem; color: var(--text2);
+      text-align: center; font-style: italic;
+      max-width: 580px; margin: 0 auto 50px;
+      line-height: 1.8;
+    }
+
+    /* ===== NUMBERS ===== */
+    .numbers {
+      background: var(--dark2);
+      border-top: 1px solid rgba(201,168,76,0.15);
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+    }
+
+    .numbers-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+
+    .number-item {
+      padding: 44px 20px;
+      text-align: center;
+      border-right: 1px solid rgba(201,168,76,0.1);
+    }
+    .number-item:last-child { border-right: none; }
+
+    .number-val {
+      font-family: 'Cinzel', serif;
+      font-size: 2.8rem; font-weight: 900;
+      color: var(--gold); display: block;
+      line-height: 1;
+    }
+    .number-label {
+      font-size: 0.88rem; color: var(--text2);
+      margin-top: 8px; display: block;
+      font-style: italic;
+    }
+
+    /* ===== WHAT'S INSIDE ===== */
+    .inside { background: var(--dark); }
+
+    .parts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px; margin-top: 0;
+    }
+
+    .part-card {
+      background: linear-gradient(135deg, rgba(26,15,7,0.9), rgba(13,10,6,0.95));
+      border: 1px solid rgba(201,168,76,0.2);
+      padding: 36px 32px;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+    .part-card:hover { border-color: rgba(201,168,76,0.5); }
+
+    .part-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+    }
+
+    .part-number {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem; letter-spacing: 0.3em;
+      color: var(--gold); text-transform: uppercase;
+      margin-bottom: 8px; display: block;
+    }
+
+    .part-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem; font-weight: 700;
+      color: var(--white); margin-bottom: 6px;
+    }
+
+    .part-sub {
+      font-size: 0.88rem; color: var(--gold);
+      font-style: italic; margin-bottom: 20px;
+    }
+
+    .chapter-list {
+      list-style: none;
+      padding: 0; margin: 0;
+    }
+
+    .chapter-list li {
+      font-size: 0.88rem; color: var(--text2);
+      padding: 7px 0 7px 20px;
+      border-bottom: 1px solid rgba(201,168,76,0.08);
+      position: relative; line-height: 1.4;
+    }
+    .chapter-list li:last-child { border-bottom: none; }
+    .chapter-list li::before {
+      content: '◆';
+      position: absolute; left: 0;
+      color: var(--gold); font-size: 0.55rem; top: 10px;
+    }
+
+    /* ===== HIGHLIGHTS ===== */
+    .highlights { background: var(--dark2); }
+
+    .highlights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .highlight-card {
+      background: rgba(8,5,3,0.6);
+      border: 1px solid rgba(201,168,76,0.15);
+      padding: 32px 26px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .highlight-card:hover {
+      border-color: rgba(201,168,76,0.4);
+      background: rgba(139,21,21,0.08);
+      transform: translateY(-4px);
+    }
+
+    .highlight-icon {
+      font-size: 2.2rem; margin-bottom: 16px;
+      display: block;
+    }
+
+    .highlight-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem; font-weight: 700;
+      color: var(--gold); margin-bottom: 10px;
+      letter-spacing: 0.04em;
+    }
+
+    .highlight-text {
+      font-size: 0.9rem; color: var(--text2);
+      line-height: 1.7; font-style: italic;
+    }
+
+    /* ===== TESTIMONIALS ===== */
+    .testimonials { background: var(--dark); }
+
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .testi-card {
+      background: rgba(26,15,7,0.8);
+      border: 1px solid rgba(201,168,76,0.15);
+      padding: 28px 24px;
+      position: relative;
+    }
+
+    .testi-quote {
+      font-size: 3rem; line-height: 1;
+      color: var(--red); font-family: Georgia, serif;
+      position: absolute; top: 16px; left: 20px;
+      opacity: 0.5;
+    }
+
+    .testi-text {
+      font-size: 0.92rem; color: var(--text2);
+      line-height: 1.75; font-style: italic;
+      padding-top: 20px; margin-bottom: 20px;
+    }
+
+    .testi-stars {
+      color: var(--gold); font-size: 0.85rem;
+      margin-bottom: 10px; letter-spacing: 3px;
+    }
+
+    .testi-author {
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem; font-weight: 600;
+      color: var(--gold); letter-spacing: 0.06em;
+    }
+
+    .testi-role {
+      font-size: 0.78rem; color: var(--text2);
+      margin-top: 2px;
+    }
+
+    /* ===== PRICING ===== */
+    .pricing {
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(139,21,21,0.2) 0%, transparent 70%),
+        var(--dark2);
+    }
+
+    .pricing-card {
+      max-width: 520px; margin: 0 auto;
+      background: linear-gradient(135deg, rgba(26,15,7,0.95), rgba(13,8,4,0.98));
+      border: 1px solid var(--gold);
+      padding: 50px 44px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.6), 0 0 60px rgba(139,21,21,0.1);
+    }
+
+    .pricing-card::before {
+      content: '';
+      position: absolute; inset: 5px;
+      border: 0.5px solid rgba(201,168,76,0.2);
+      pointer-events: none;
+    }
+
+    .pricing-badge {
+      display: inline-block;
+      background: var(--red);
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem; letter-spacing: 0.15em;
+      padding: 7px 20px; text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .pricing-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--white); margin-bottom: 6px;
+    }
+
+    .pricing-sub {
+      font-size: 0.9rem; color: var(--text2);
+      font-style: italic; margin-bottom: 30px;
+    }
+
+    .pricing-includes {
+      text-align: left;
+      margin: 0 0 32px;
+      list-style: none; padding: 0;
+    }
+
+    .pricing-includes li {
+      font-size: 0.92rem; color: var(--text);
+      padding: 9px 0 9px 22px;
+      border-bottom: 1px solid rgba(201,168,76,0.1);
+      position: relative;
+    }
+    .pricing-includes li:last-child { border-bottom: none; }
+    .pricing-includes li::before {
+      content: '✦';
+      position: absolute; left: 0;
+      color: var(--gold); font-size: 0.7rem; top: 11px;
+    }
+
+    .pricing-price {
+      margin: 32px 0;
+      padding: 24px;
+      border: 1px solid rgba(201,168,76,0.2);
+      background: rgba(201,168,76,0.04);
+    }
+
+    .price-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem; letter-spacing: 0.25em;
+      color: var(--text2); text-transform: uppercase;
+      margin-bottom: 8px; display: block;
+    }
+
+    .price-value {
+      font-family: 'Cinzel', serif;
+      font-size: 3.2rem; font-weight: 900;
+      color: var(--gold); line-height: 1;
+    }
+
+    .price-note {
+      font-size: 0.82rem; color: var(--text2);
+      margin-top: 8px; font-style: italic;
+    }
+
+    .btn-buy {
+      display: block; width: 100%;
+      background: linear-gradient(135deg, var(--red), #6b1010);
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 20px;
+      border: none; cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+      box-shadow: 0 4px 24px rgba(139,21,21,0.4);
+      position: relative; overflow: hidden;
+    }
+    .btn-buy:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 40px rgba(139,21,21,0.7);
+    }
+
+    .btn-buy-wpp {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: #25D366;
+      margin-top: 12px;
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 16px; text-decoration: none;
+      transition: all 0.3s;
+    }
+    .btn-buy-wpp:hover { background: #1da851; transform: translateY(-2px); }
+
+    .pricing-guarantee {
+      margin-top: 24px;
+      font-size: 0.82rem; color: var(--text2);
+      font-style: italic; line-height: 1.6;
+    }
+    .pricing-guarantee strong { color: var(--gold); }
+
+    /* ===== FAQ ===== */
+    .faq { background: var(--dark); }
+
+    .faq-list { max-width: 680px; margin: 0 auto; }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+      padding: 24px 0;
+    }
+
+    .faq-q {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem; font-weight: 600;
+      color: var(--white); margin-bottom: 12px;
+      letter-spacing: 0.03em;
+    }
+
+    .faq-a {
+      font-size: 0.92rem; color: var(--text2);
+      line-height: 1.8; font-style: italic;
+    }
+
+    /* ===== FINAL CTA ===== */
+    .final-cta {
+      background:
+        radial-gradient(ellipse at 50% 50%, rgba(139,21,21,0.3) 0%, transparent 70%),
+        var(--dark2);
+      padding: 100px 24px;
+      text-align: center;
+    }
+
+    .final-cta .section-title { font-size: 2.2rem; margin-bottom: 16px; }
+
+    .final-cta p {
+      font-size: 1.05rem; color: var(--text2);
+      font-style: italic; max-width: 520px;
+      margin: 0 auto 40px; line-height: 1.85;
+    }
+
+    .final-quote {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem; font-weight: 600;
+      color: var(--gold); letter-spacing: 0.06em;
+      margin-top: 40px;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--black);
+      border-top: 1px solid rgba(201,168,76,0.1);
+      padding: 36px 24px;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 0.82rem; color: var(--text2);
+      font-style: italic; line-height: 1.7;
+    }
+
+    footer .footer-logo {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem; font-weight: 700;
+      color: var(--gold); letter-spacing: 0.15em;
+      margin-bottom: 12px; display: block;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+      .book-mockup { order: -1; }
+      .book { transform: none; width: 200px; }
+      .hero-title { font-size: 2rem; }
+      .numbers-grid { grid-template-columns: repeat(2, 1fr); }
+      .number-item { border-bottom: 1px solid rgba(201,168,76,0.1); }
+      .parts-grid { grid-template-columns: 1fr; }
+      .highlights-grid { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .btn-secondary { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">✦ Kabala de Exu</span>
+  <a href="#comprar" class="nav-cta">Quero o Guia</a>
+</nav>
+
+<!-- ============================================================ -->
+<!-- HERO                                                          -->
+<!-- ============================================================ -->
+<section class="hero">
+  <div class="hero-inner">
+
+    <!-- MOCKUP -->
+    <div class="book-mockup">
+      <div class="book">
+        <div class="badge">
+          <span>Guia</span>
+          <span>COMPLETO</span>
+        </div>
+        <div class="book-line"></div>
+        <p class="book-title">KABALA</p>
+        <p class="book-title2">DE EXU</p>
+        <div class="book-bar">Os Caminhos Sagrados de Mussifin</div>
+
+        <svg class="book-svg" viewBox="0 0 180 130" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="bg2" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#6b0e0e"/>
+              <stop offset="100%" stop-color="#2a0505"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="90" cy="65" rx="80" ry="56" fill="url(#bg2)" opacity="0.95"/>
+          <ellipse cx="90" cy="65" rx="70" ry="48" fill="none" stroke="#c9a84c" stroke-width="0.8"/>
+          <ellipse cx="90" cy="65" rx="56" ry="37" fill="none" stroke="#c9a84c" stroke-width="0.4"/>
+          <line x1="90" y1="17" x2="18" y2="90" stroke="#c9a84c" stroke-width="0.8"/>
+          <line x1="90" y1="17" x2="162" y2="90" stroke="#c9a84c" stroke-width="0.8"/>
+          <line x1="18" y1="90" x2="150" y2="47" stroke="#c9a84c" stroke-width="0.8"/>
+          <line x1="162" y1="90" x2="30" y2="47" stroke="#c9a84c" stroke-width="0.8"/>
+          <line x1="30" y1="47" x2="150" y2="47" stroke="#c9a84c" stroke-width="0.8"/>
+          <line x1="90" y1="28" x2="90" y2="100" stroke="#8b1515" stroke-width="2"/>
+          <polygon points="90,108 84,90 96,90" fill="#8b1515"/>
+          <path d="M80,37 Q72,28 77,21" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+          <path d="M100,37 Q108,28 103,21" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+        </svg>
+
+        <div class="book-line"></div>
+        <p class="book-sub">Guia Completo de Feituras,<br>Fundamentos, Axés e Rituais</p>
+        <div class="book-line"></div>
+      </div>
+    </div>
+
+    <!-- TEXTO -->
+    <div class="hero-text">
+      <span class="hero-eyebrow">✦ Obra Completa em 2 Volumes ✦</span>
+      <h1 class="hero-title">
+        O Conhecimento<br>
+        <span class="accent">Sagrado</span> que os<br>
+        Terreiros Guardam
+      </h1>
+      <p class="hero-sub">Kabala de Exu — Os Caminhos de Mussifin</p>
+      <p class="hero-desc">
+        Tudo sobre feituras, assentamentos, axés, rituais e fundamentos da
+        tradição afro-brasileira reunido em um único guia completo —
+        do iniciante ao avançado.
+      </p>
+
+      <div class="hero-pills">
+        <span class="pill">34 Páginas</span>
+        <span class="pill">2 Volumes</span>
+        <span class="pill">+20 Axés</span>
+        <span class="pill">Rituais Completos</span>
+        <span class="pill">Nomes Sagrados</span>
+      </div>
+
+      <div>
+        <a href="#comprar" class="btn-primary">Quero o Guia Agora</a>
+        <a href="#conteudo" class="btn-secondary">Ver Conteúdo</a>
+      </div>
+
+      <div class="hero-trust">
+        <span><span class="dot"></span> Entrega imediata</span>
+        <span><span class="dot"></span> Formato digital</span>
+        <span><span class="dot"></span> Tradição preservada</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- NUMBERS                                                       -->
+<!-- ============================================================ -->
+<div class="numbers">
+  <div class="container">
+    <div class="numbers-grid">
+      <div class="number-item">
+        <span class="number-val">34</span>
+        <span class="number-label">Páginas de conteúdo</span>
+      </div>
+      <div class="number-item">
+        <span class="number-val">2</span>
+        <span class="number-label">Volumes completos</span>
+      </div>
+      <div class="number-item">
+        <span class="number-val">+20</span>
+        <span class="number-label">Axés e rituais detalhados</span>
+      </div>
+      <div class="number-item">
+        <span class="number-val">XXI</span>
+        <span class="number-label">Capítulos da tradição</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- O QUE ESTÁ DENTRO                                             -->
+<!-- ============================================================ -->
+<section class="inside" id="conteudo">
+  <div class="container">
+    <p class="section-label">✦ Conteúdo Completo ✦</p>
+    <h2 class="section-title">Dois Volumes,<br>Um Conhecimento Completo</h2>
+    <p class="section-sub">
+      A obra reúne o guia prático de rituais com o guia educativo de fundamentos —
+      tudo que você precisa para compreender e praticar com profundidade.
+    </p>
+
+    <div class="parts-grid">
+
+      <!-- PARTE 1 -->
+      <div class="part-card">
+        <span class="part-number">✦ Volume I ✦</span>
+        <h3 class="part-title">Kabala de Exu — Rituais e Fundamentos</h3>
+        <p class="part-sub">O guia prático completo</p>
+        <ul class="chapter-list">
+          <li>A Kabala de Mussifin — Origens e Fundamentos</li>
+          <li>A Ligação entre Kabala e Umbanda</li>
+          <li>Montagem da Kabala de Exu e Pomba Gira</li>
+          <li>A Matança e Consagração da Kabala</li>
+          <li>Rituais: Corte, Limpeza e Levantação</li>
+          <li>O Dia do Elebó — A Festa dos Exus</li>
+          <li>O Movimento de Exu — Despachar a Rua</li>
+          <li>O Desligamento — Rito do Falecimento</li>
+          <li>Guias, Ferramentas e Símbolos</li>
+          <li>Reinos, Cores e Entidades</li>
+          <li>+10 Axés de Proteção, Cura e Abertura</li>
+          <li>Axés de Demanda e Trabalhos Especiais</li>
+          <li>Nomes Kabalisticos Sagrados (A–V)</li>
+          <li>Glossário Completo da Tradição</li>
+        </ul>
+      </div>
+
+      <!-- PARTE 2 -->
+      <div class="part-card">
+        <span class="part-number">✦ Volume II ✦</span>
+        <h3 class="part-title">Guia Educativo — O Papel do Pai de Santo</h3>
+        <p class="part-sub">Entenda o porquê de cada ritual</p>
+        <ul class="chapter-list">
+          <li>O Que É a Kabala de Mussifin?</li>
+          <li>O Papel do Pai ou Mãe de Santo</li>
+          <li>Entendendo os Rituais Principais</li>
+          <li>O Movimento de Exu e os Cuidados Contínuos</li>
+          <li>Os Cinco Reinos e as Entidades (com tabela)</li>
+          <li>Tipos de Axés por Finalidade</li>
+          <li>Ética e Responsabilidade Espiritual</li>
+          <li>As Duas Leis Fundamentais (Karma e Livre Arbítrio)</li>
+          <li>Como Ser um Bom Filho/Filha de Santo</li>
+          <li>Sinais de Crescimento Espiritual</li>
+          <li>Quando pedir trabalhos "fortes"</li>
+          <li>Construindo sua Jornada</li>
+          <li>Conclusão — O Caminho Continua</li>
+          <li>Laroyê, Exu! Môjubá!</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- DESTAQUES                                                      -->
+<!-- ============================================================ -->
+<section class="highlights">
+  <div class="container">
+    <p class="section-label">✦ Por que este guia? ✦</p>
+    <h2 class="section-title">Um Guia como Nenhum Outro</h2>
+    <p class="section-sub">Conhecimento passado oralmente por gerações,<br>agora sistematizado e preservado com respeito.</p>
+
+    <div class="highlights-grid">
+      <div class="highlight-card">
+        <span class="highlight-icon">🔑</span>
+        <h4 class="highlight-title">Conhecimento Real</h4>
+        <p class="highlight-text">Fundamentos autênticos da Kabala de Mussifin, preservados com respeito e detalhados para qualquer nível.</p>
+      </div>
+      <div class="highlight-card">
+        <span class="highlight-icon">📖</span>
+        <h4 class="highlight-title">Prático e Educativo</h4>
+        <p class="highlight-text">O Volume I ensina o que fazer. O Volume II explica o porquê. Juntos, formam uma compreensão completa.</p>
+      </div>
+      <div class="highlight-card">
+        <span class="highlight-icon">⚡</span>
+        <h4 class="highlight-title">+20 Rituais Completos</h4>
+        <p class="highlight-text">Ingredientes, passo a passo e entidade responsável para cada axé — saúde, prosperidade, proteção, demanda.</p>
+      </div>
+      <div class="highlight-card">
+        <span class="highlight-icon">🌙</span>
+        <h4 class="highlight-title">Os 5 Reinos</h4>
+        <p class="highlight-text">Cruzeiro, Almas, Praia, Mato e Oriente — cada reino com suas entidades, ferramentas, cores e locais de trabalho.</p>
+      </div>
+      <div class="highlight-card">
+        <span class="highlight-icon">🗡️</span>
+        <h4 class="highlight-title">Ferramentas e Símbolos</h4>
+        <p class="highlight-text">Otás, guias, ferramentas por entidade e nomes kabalisticos sagrados organizados de A a V.</p>
+      </div>
+      <div class="highlight-card">
+        <span class="highlight-icon">🛡️</span>
+        <h4 class="highlight-title">Ética e Karma</h4>
+        <p class="highlight-text">As Duas Leis que regem a Kabala: Lei do Retorno e Lei do Livre Arbítrio — use o conhecimento com consciência.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- DEPOIMENTOS                                                    -->
+<!-- ============================================================ -->
+<section class="testimonials">
+  <div class="container">
+    <p class="section-label">✦ Quem Já Tem ✦</p>
+    <h2 class="section-title">O Que Dizem os Filhos da Casa</h2>
+    <p class="section-sub">Depoimentos de quem aprofundou sua jornada com este guia.</p>
+
+    <div class="testi-grid">
+      <div class="testi-card">
+        <span class="testi-quote">"</span>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">Finalmente entendi o porquê de cada etapa da montagem da Kabala. Esse guia explica o que o pai de santo faz mas muitas vezes não tem tempo de ensinar.</p>
+        <p class="testi-author">M. S.</p>
+        <p class="testi-role">Filha de santo há 3 anos</p>
+      </div>
+      <div class="testi-card">
+        <span class="testi-quote">"</span>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">Os axés detalhados são um achado. Cada ingrediente explicado, cada passo na ordem certa. Guarda esse material com cuidado porque é ouro.</p>
+        <p class="testi-author">R. F.</p>
+        <p class="testi-role">Pai de santo, Umbanda/Kabala</p>
+      </div>
+      <div class="testi-card">
+        <span class="testi-quote">"</span>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">Comprei para complementar meus estudos e o Volume II me abriu os olhos sobre ética espiritual. Indico para todo filho de santo que quer crescer de verdade.</p>
+        <p class="testi-author">C. A.</p>
+        <p class="testi-role">Médium iniciante</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- PRICING                                                        -->
+<!-- ============================================================ -->
+<section class="pricing" id="comprar">
+  <div class="container">
+    <p class="section-label">✦ Adquira Agora ✦</p>
+    <h2 class="section-title" style="margin-bottom:40px;">Acesso Completo aos<br>Dois Volumes</h2>
+
+    <div class="pricing-card">
+      <span class="pricing-badge">✦ Edição Completa ✦</span>
+      <h3 class="pricing-title">Kabala de Exu — Obra Completa</h3>
+      <p class="pricing-sub">Os Caminhos Sagrados de Mussifin</p>
+
+      <ul class="pricing-includes">
+        <li>Volume I — Rituais, Axés e Fundamentos (PDF)</li>
+        <li>Volume II — Guia Educativo do Pai de Santo (PDF)</li>
+        <li>+20 axés detalhados com ingredientes e passos</li>
+        <li>Nomes Kabalisticos Sagrados completos (A–V)</li>
+        <li>Tabela dos 5 Reinos e suas entidades</li>
+        <li>Glossário completo da tradição</li>
+        <li>Entrega digital imediata após confirmação</li>
+      </ul>
+
+      <div class="pricing-price">
+        <span class="price-label">Investimento único</span>
+        <span class="price-value">R$ 20</span>
+        <p class="price-note">Pagamento após receber o material · Cash on delivery</p>
+      </div>
+
+      <a href="https://wa.me/555497038510?text=Olá!%20Quero%20adquirir%20o%20Guia%20da%20Kabala%20de%20Exu%20-%20Caminhos%20de%20Mussifin"
+         class="btn-buy" target="_blank">
+        ✦ Quero Adquirir Agora ✦
+      </a>
+
+      <a href="https://wa.me/555497038510?text=Olá!%20Tenho%20interesse%20no%20Guia%20da%20Kabala%20de%20Exu"
+         class="btn-buy-wpp" target="_blank">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        Falar pelo WhatsApp
+      </a>
+
+      <p class="pricing-guarantee">
+        <strong>Pagamento após receber.</strong> Envio o material, você confere o conteúdo
+        e realiza o pagamento. Sua confiança é nossa prioridade.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- FAQ                                                            -->
+<!-- ============================================================ -->
+<section class="faq">
+  <div class="container">
+    <p class="section-label">✦ Dúvidas Frequentes ✦</p>
+    <h2 class="section-title" style="margin-bottom:40px;">Perguntas & Respostas</h2>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <p class="faq-q">Como recebo o material após a compra?</p>
+        <p class="faq-a">Após o contato pelo WhatsApp e confirmação, o PDF é enviado diretamente pelo aplicativo. O pagamento é feito apenas depois que você receber e conferir o material.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Este guia é indicado para iniciantes?</p>
+        <p class="faq-a">Sim! O Volume II foi especialmente criado para quem está começando, explicando o porquê de cada ritual. O Volume I é mais técnico, mas ambos são escritos de forma clara e acessível.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">O guia é específico para alguma casa ou é geral?</p>
+        <p class="faq-a">O guia foi elaborado dentro da tradição da Kabala de Mussifin, com base em conhecimentos transmitidos de geração em geração. Os fundamentos se aplicam amplamente à tradição afro-brasileira.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Qual formato é entregue?</p>
+        <p class="faq-a">O material é entregue em formato PDF de alta qualidade, que pode ser lido no celular, tablet ou computador — e também impresso se preferir ter em mãos.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Posso compartilhar com meus irmãos de fé?</p>
+        <p class="faq-a">O material é para uso pessoal. Caso queira presentear alguém da casa, entre em contato para adquirir unidades adicionais.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- FINAL CTA                                                      -->
+<!-- ============================================================ -->
+<div class="final-cta">
+  <div class="divider" style="margin-bottom:50px;"><div class="divider-diamond"></div></div>
+
+  <h2 class="section-title">Aprofunde Sua<br>Jornada Espiritual</h2>
+  <p>
+    Cada gira, cada ritual, cada axé tem um significado profundo.
+    Compreender esses fundamentos é respeitar a tradição e fortalecer
+    sua própria conexão com as entidades.
+  </p>
+
+  <a href="https://wa.me/555497038510?text=Olá!%20Quero%20adquirir%20o%20Guia%20da%20Kabala%20de%20Exu"
+     class="btn-primary" target="_blank">
+    ✦ Quero o Guia Agora ✦
+  </a>
+
+  <p class="final-quote" style="margin-top:50px;">
+    "Que Exu abra seus caminhos e Ogum Megê proteja sua jornada."
+  </p>
+
+  <div class="divider" style="margin-top:50px;"><div class="divider-diamond"></div></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">✦ Kabala de Exu — Os Caminhos Sagrados de Mussifin ✦</span>
+  <p>Material de caráter educativo e cultural sobre a tradição afro-brasileira.<br>
+  Feito com respeito e dedicação aos filhos de santo.</p>
+  <p style="margin-top:12px;font-size:0.75rem;opacity:0.6;">Laroyê, Exu! Môjubá!</p>
+</footer>
+
+</body>
+</html>
